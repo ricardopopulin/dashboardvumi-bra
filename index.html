@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Projeção Seguro Saúde - Multi-Vidas</title>
+    <title>Dashboard Projeção Seguro Saúde - Multi-Vidas VUMI</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh; padding: 20px; }
@@ -19,14 +21,19 @@
         label { display: block; margin-bottom: 4px; color: #555; font-weight: 600; font-size: 13px; }
         input, select { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }
         input:focus, select:focus { outline: none; border-color: #1e3c72; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; margin: 5px; }
         .btn-primary { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
         .btn-success { background: #2ed573; color: white; }
         .btn-danger { background: #ff4757; color: white; padding: 6px 12px; font-size: 12px; }
+        .btn-warning { background: #ffa502; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-agro { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
         .pessoa-item { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #1e3c72; }
+        .pessoa-item.agro { border-left-color: #28a745; background: #f0f9f4; }
+        .pessoa-item.crianca { border-left-color: #ff6b6b; background: #fff5f5; }
         .pessoa-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .pessoa-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; }
-        @media (max-width: 768px) { .pessoa-grid { grid-template-columns: 1fr; } }
+        .pessoa-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; gap: 10px; }
+        @media (max-width: 1200px) { .pessoa-grid { grid-template-columns: 1fr 1fr; } }
         .operadora-section { background: #fff3e0; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid #ff6600; }
         .operadora-section.vumi { background: #e3f2fd; border-left-color: #00a8e8; }
         .checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
@@ -44,6 +51,9 @@
         .badge { display: inline-block; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: bold; }
         .badge-bradesco { background: #ff6600; color: white; }
         .badge-vumi { background: #00a8e8; color: white; }
+        .badge-agro { background: #28a745; color: white; }
+        .badge-crianca { background: #ff6b6b; color: white; }
+        .badge-adulto { background: #4caf50; color: white; }
         .tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab { padding: 10px 20px; background: #e0e0e0; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .tab.active { background: #1e3c72; color: white; }
@@ -51,6 +61,7 @@
         .tab-content.active { display: block; }
         .comparativo-table { overflow-x: auto; max-height: 600px; overflow-y: auto; }
         .info-box { background: #e8f5e9; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; border-left: 4px solid #4caf50; }
+        .info-box.agro { background: #d4edda; border-left-color: #28a745; }
         .grid-reajustes { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 768px) { .grid-reajustes { grid-template-columns: 1fr; } }
         .faixa-alta { color: #d32f2f; font-weight: bold; }
@@ -58,16 +69,67 @@
         .faixa-baixa { color: #388e3c; font-weight: bold; }
         .economia { color: #388e3c; font-weight: bold; }
         .prejuizo { color: #d32f2f; font-weight: bold; }
+        
+        .col-mensal-bradesco { background-color: #fff3e0 !important; font-weight: bold; color: #ff6600; font-size: 12px; }
+        .col-mensal-vumi { background-color: #e3f2fd !important; font-weight: bold; color: #00a8e8; font-size: 12px; }
+        th.col-mensal-bradesco { background-color: #ff6600 !important; color: white; }
+        th.col-mensal-vumi { background-color: #00a8e8 !important; color: white; }
+        
+        .aniversario-info { background: #fff8e1; padding: 8px; border-radius: 6px; margin-top: 5px; font-size: 11px; border-left: 3px solid #ffc107; }
+        .aniversario-passou { color: #d32f2f; }
+        .aniversario-futuro { color: #388e3c; }
+        
+        .plano-selector { background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #00a8e8; }
+        .plano-option { display: inline-block; margin: 5px; padding: 8px 15px; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; transition: all 0.3s; }
+        .plano-option:hover { border-color: #00a8e8; }
+        .plano-option.selected { background: #00a8e8; color: white; border-color: #00a8e8; }
+        
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border-radius: 15px; width: 95%; max-width: 1000px; max-height: 80vh; overflow-y: auto; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: black; }
+        .tabela-precos { width: 100%; font-size: 11px; margin-top: 10px; }
+        .tabela-precos th { background: #00a8e8; position: sticky; top: 0; }
+        .tabela-precos td { padding: 4px; }
+        
+        .planos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
+        @media (max-width: 768px) { .planos-grid { grid-template-columns: 1fr 1fr; } }
+        .plano-card { background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .plano-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .plano-card.selected { border-color: #00a8e8; background: #e3f2fd; }
+        .plano-card h4 { color: #00a8e8; margin-bottom: 5px; font-size: 14px; }
+        .plano-card p { font-size: 11px; color: #666; margin: 0; }
+
+        .agro-section { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .agro-section h3 { color: #155724; margin-bottom: 10px; }
+        .agro-toggle { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .agro-toggle input[type="checkbox"] { width: 20px; height: 20px; accent-color: #28a745; }
+
+        .transicao-18 { background: #fff3e0; padding: 4px 8px; border-radius: 4px; font-size: 10px; color: #e65100; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📊 Dashboard Projeção Seguro Saúde - Multi-Vidas</h1>
-        <p class="subtitle">Bradesco vs VUMI | Projeção até 80 anos | Múltiplas vidas por apólice</p>
+        <p class="subtitle">Bradesco vs VUMI | Projeção até 80 anos | Clientes Agro e Tradicionais</p>
         
         <div class="grid-2">
             <div class="card">
                 <h2>⚙️ Configurações Gerais da Apólice</h2>
+                
+                <!-- SEÇÃO AGRO -->
+                <div class="agro-section">
+                    <div class="agro-toggle">
+                        <input type="checkbox" id="isClienteAgro" onchange="toggleAgroMode()">
+                        <label for="isClienteAgro" style="margin: 0; color: #155724; font-size: 16px; cursor: pointer;">
+                            <strong>🌾 Cliente Agro (Rural)</strong>
+                        </label>
+                    </div>
+                    <p style="font-size: 12px; color: #155724; margin-top: 5px;">
+                        Ao marcar, habilita franquias especiais de $500 e $1.000 com acréscimo de 23,8% e 15,5% respectivamente sobre o valor da franquia de $2.000.
+                    </p>
+                </div>
+
                 <div class="form-group">
                     <label>Ano de Início da Projeção</label>
                     <input type="number" id="anoInicio" value="2024">
@@ -76,15 +138,49 @@
                     <label>Idade Limite de Projeção</label>
                     <input type="number" id="idadeLimite" value="80" max="80">
                 </div>
+                
                 <div class="form-group">
-                    <label>Franquia VUMI</label>
-                    <select id="franquiaVumi">
-                        <option value="2000">R$ 2.000</option>
-                        <option value="5000">R$ 5.000</option>
-                        <option value="10000">R$ 10.000</option>
-                        <option value="20000">R$ 20.000</option>
-                        <option value="50000">R$ 50.000</option>
+                    <label>🏥 Plano VUMI</label>
+                    <div class="planos-grid">
+                        <div class="plano-card selected" onclick="selecionarPlano('DIRECT')" id="plano-DIRECT">
+                            <h4>DIRECT</h4>
+                            <p>Entry Level</p>
+                        </div>
+                        <div class="plano-card" onclick="selecionarPlano('SPECIAL')" id="plano-SPECIAL">
+                            <h4>SPECIAL</h4>
+                            <p>Básico</p>
+                        </div>
+                        <div class="plano-card" onclick="selecionarPlano('UNIVERSAL')" id="plano-UNIVERSAL">
+                            <h4>UNIVERSAL</h4>
+                            <p>Intermediário</p>
+                        </div>
+                        <div class="plano-card" onclick="selecionarPlano('ABSOLUTE')" id="plano-ABSOLUTE">
+                            <h4>ABSOLUTE</h4>
+                            <p>Top</p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="planoVumiSelecionado" value="DIRECT">
+                </div>
+
+                <div class="form-group">
+                    <label>Franquia VUMI (Deductible)</label>
+                    <select id="franquiaVumi" onchange="atualizarTodosValoresVumi()">
+                        <option value="2000">$2,000 (Padrão)</option>
+                        <option value="5000">$5,000</option>
+                        <option value="10000">$10,000</option>
+                        <option value="20000">$20,000</option>
+                        <option value="50000">$50,000</option>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label>📅 Data de Aniversário da Apólice Atual (Mês/Dia)</label>
+                    <input type="date" id="dataAniversarioApolice" onchange="atualizarInfoAniversario()">
+                    <div id="infoAniversario" class="aniversario-info" style="display: none;"></div>
+                </div>
+                <div class="form-group">
+                    <label>Cotação do Dólar (R$)</label>
+                    <input type="number" id="cotacaoDolar" value="5.00" step="0.01" onchange="atualizarTodosValoresVumi()">
                 </div>
             </div>
             
@@ -115,7 +211,11 @@
                     </div>
                 </div>
                 <div class="info-box">
-                    💡 <strong>Importante:</strong> A VUMI já tem reajustes anuais por idade na tabela. O reajuste acima seria adicional (ex: inflação).
+                    💡 <strong>Importante:</strong> Os reajustes por faixa etária são aplicados automaticamente conforme a tabela do plano selecionado. O reajuste anual acima é adicional.
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="abrirModalTabelaVumi()">📋 Visualizar Tabela de Preços VUMI</button>
+                    <button class="btn btn-warning" onclick="usarValoresTabelaVumi()" style="margin-left: 10px;">💵 Usar Valores da Tabela</button>
                 </div>
             </div>
         </div>
@@ -123,7 +223,9 @@
         <div class="card">
             <h2>👥 Vidas da Apólice (Adicione todas as pessoas)</h2>
             <div class="info-box">
-                Adicione cada pessoa da apólice com nome, data de nascimento e valor atual da mensalidade. O sistema calculará automaticamente a projeção individual e o consolidado do grupo.
+                Adicione cada pessoa da apólice com nome, data de nascimento e valor Bradesco. <strong>O sistema calcula o valor VUMI automaticamente</strong> baseado na idade.
+                <br><br>
+                <strong>👶 Crianças (0-17 anos):</strong> O sistema identifica automaticamente e aplica a tarifa especial VUMI para crianças. Quando a criança completa 18 anos, ela automaticamente passa a usar a tabela de adultos com os reajustes por faixa etária.
             </div>
             <div id="pessoasContainer"></div>
             <button class="btn btn-success" onclick="adicionarPessoa()" style="margin-top: 10px;">+ Adicionar Pessoa</button>
@@ -150,23 +252,24 @@
                             <thead>
                                 <tr>
                                     <th>Ano</th>
-                                    <th>BRADESCO<br>Mensal</th>
+                                    <th class="col-mensal-bradesco">BRADESCO<br>Mensal ⭐</th>
                                     <th>Reajuste<br>Bradesco</th>
                                     <th>BRADESCO<br>Anual</th>
-                                    <th>BRADESCO<br>Acumulado</th>
-                                    <th>VUMI<br>Mensal</th>
+                                    <th class="col-mensal-vumi">VUMI<br>Mensal ⭐</th>
                                     <th>Reajuste<br>VUMI</th>
                                     <th>VUMI<br>Anual</th>
-                                    <th>VUMI<br>Acumulado</th>
                                     <th>Diferença<br>Mensal</th>
                                     <th>Diferença<br>Anual</th>
-                                    <th>Economia<br>Acumulada</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyAnual"></tbody>
                         </table>
                     </div>
-                    <button class="btn btn-success" onclick="exportarCSV('anual')" style="margin-top: 15px;">📥 Exportar Projeção Anual (CSV)</button>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-success" onclick="exportarCSV('anual')">📄 Exportar CSV</button>
+                        <button class="btn btn-info" onclick="exportarExcel('anual')">📊 Exportar Excel</button>
+                        <button class="btn btn-danger" onclick="exportarPDF('anual')">📕 Exportar PDF</button>
+                    </div>
                 </div>
                 
                 <div id="tab-pessoas" class="tab-content">
@@ -190,42 +293,619 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para Tabela VUMI -->
+    <div id="modalTabelaVumi" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalTabelaVumi()">&times;</span>
+            <h2>📋 Tabela de Preços VUMI - <span id="nomePlanoModal">DIRECT</span></h2>
+            <div style="margin-bottom: 15px;">
+                <span id="badgeAgro" style="display: none;" class="badge badge-agro">CLIENTE AGRO</span>
+                <p style="margin-top: 10px;">
+                    Franquia: <span id="franquiaModal">$2,000</span> | 
+                    Cotação: R$ <span id="cotacaoModal">5.00</span>
+                </p>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="tabela-precos" id="tabelaPrecosVumi">
+                    <thead>
+                        <tr>
+                            <th>Idade/Faixa</th>
+                            <th>Valor Anual USD</th>
+                            <th>Valor Mensal USD</th>
+                            <th>Valor Mensal R$</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyPrecosVumi"></tbody>
+                </table>
+            </div>
+            <button class="btn btn-success" onclick="fecharModalTabelaVumi()" style="margin-top: 15px;">✅ Fechar</button>
+        </div>
+    </div>
+
     <script>
-        // TABELAS ATUALIZADAS
-        const tabelaBradesco = [
-            {min: 0, max: 18, pct: 0.00}, {min: 19, max: 23, pct: 18.00},
-            {min: 24, max: 28, pct: 21.00}, {min: 29, max: 33, pct: 20.00},
-            {min: 34, max: 38, pct: 14.00}, {min: 39, max: 43, pct: 3.00},
-            {min: 44, max: 48, pct: 21.75}, {min: 49, max: 53, pct: 17.62},
-            {min: 54, max: 58, pct: 19.00}, {min: 59, max: 120, pct: 75.00}
-        ];
+        // ============================================================
+        // TABELAS VUMI 2025 - VALORES ANUAIS EM USD (dos PDFs)
+        // ============================================================
         
-        const tabelaVumi = {
-            2000: [{min:0,max:24,pct:0},{min:25,max:29,pct:10.55},{min:30,max:34,pct:7.30},{min:35,max:39,pct:12.03},{min:40,max:44,pct:9.41},{min:45,max:49,pct:11.86},{min:50,max:54,pct:31.34},{min:55,max:59,pct:6.42},{min:60,max:60,pct:6.84},{min:61,max:61,pct:7.45},{min:62,max:62,pct:9.55},{min:63,max:63,pct:6.35},{min:64,max:64,pct:8.22},{min:65,max:65,pct:30.50},{min:66,max:66,pct:16.20},{min:67,max:67,pct:9.25},{min:68,max:68,pct:10.75},{min:69,max:69,pct:10.01},{min:70,max:70,pct:21.78},{min:71,max:71,pct:3.93},{min:72,max:72,pct:2.83},{min:73,max:73,pct:3.69},{min:74,max:74,pct:1.76},{min:75,max:79,pct:4.35},{min:80,max:120,pct:2.15}],
-            5000: [{min:0,max:24,pct:0},{min:25,max:29,pct:10.95},{min:30,max:34,pct:11.91},{min:35,max:39,pct:12.22},{min:40,max:44,pct:11.07},{min:45,max:49,pct:-4.97},{min:50,max:54,pct:30.57},{min:55,max:59,pct:6.50},{min:60,max:60,pct:12.64},{min:61,max:61,pct:7.41},{min:62,max:62,pct:9.57},{min:63,max:63,pct:6.30},{min:64,max:64,pct:8.25},{min:65,max:65,pct:26.50},{min:66,max:66,pct:16.22},{min:67,max:67,pct:9.23},{min:68,max:68,pct:10.75},{min:69,max:69,pct:10.04},{min:70,max:70,pct:17.73},{min:71,max:71,pct:3.93},{min:72,max:72,pct:2.83},{min:73,max:73,pct:3.67},{min:74,max:74,pct:1.77},{min:75,max:79,pct:4.36},{min:80,max:120,pct:2.14}],
-            10000: [{min:0,max:24,pct:0},{min:25,max:29,pct:11.04},{min:30,max:34,pct:19.98},{min:35,max:39,pct:12.24},{min:40,max:44,pct:10.01},{min:45,max:49,pct:11.79},{min:50,max:54,pct:41.50},{min:55,max:59,pct:6.42},{min:60,max:60,pct:18.07},{min:61,max:61,pct:7.50},{min:62,max:62,pct:9.44},{min:63,max:63,pct:6.38},{min:64,max:64,pct:8.18},{min:65,max:65,pct:33.44},{min:66,max:66,pct:16.29},{min:67,max:67,pct:9.22},{min:68,max:68,pct:10.77},{min:69,max:69,pct:10.01},{min:70,max:70,pct:16.56},{min:71,max:71,pct:3.94},{min:72,max:72,pct:2.82},{min:73,max:73,pct:3.69},{min:74,max:74,pct:1.78},{min:75,max:79,pct:4.35},{min:80,max:120,pct:2.15}],
-            20000: [{min:0,max:24,pct:0},{min:25,max:29,pct:11.13},{min:30,max:34,pct:20.32},{min:35,max:39,pct:12.16},{min:40,max:44,pct:9.92},{min:45,max:49,pct:11.94},{min:50,max:54,pct:41.74},{min:55,max:59,pct:6.49},{min:60,max:60,pct:21.65},{min:61,max:61,pct:7.48},{min:62,max:62,pct:9.51},{min:63,max:63,pct:6.40},{min:64,max:64,pct:8.21},{min:65,max:65,pct:41.16},{min:66,max:66,pct:16.24},{min:67,max:67,pct:9.25},{min:68,max:68,pct:10.72},{min:69,max:69,pct:10.07},{min:70,max:70,pct:17.65},{min:71,max:71,pct:3.94},{min:72,max:72,pct:2.81},{min:73,max:73,pct:3.70},{min:74,max:74,pct:1.78},{min:75,max:79,pct:4.34},{min:80,max:120,pct:2.15}],
-            50000: [{min:0,max:24,pct:0},{min:25,max:29,pct:10.97},{min:30,max:34,pct:20.35},{min:35,max:39,pct:12.32},{min:40,max:44,pct:9.87},{min:45,max:49,pct:11.92},{min:50,max:54,pct:41.77},{min:55,max:59,pct:6.50},{min:60,max:60,pct:21.63},{min:61,max:61,pct:7.50},{min:62,max:62,pct:9.49},{min:63,max:63,pct:6.37},{min:64,max:64,pct:8.28},{min:65,max:65,pct:41.12},{min:66,max:66,pct:16.22},{min:67,max:67,pct:9.25},{min:68,max:68,pct:10.73},{min:69,max:69,pct:10.07},{min:70,max:70,pct:17.64},{min:71,max:71,pct:3.95},{min:72,max:72,pct:2.80},{min:73,max:73,pct:3.70},{min:74,max:74,pct:1.78},{min:75,max:79,pct:4.35},{min:80,max:120,pct:2.13}]
+        // TABELAS PARA ADULTOS (18+ anos)
+        const TABELAS_VUMI_ADULTOS = {
+            'DIRECT': {
+                2000: {
+                    '18-24': 2869, '25-29': 3170, '30-34': 3404, '35-39': 3814, '40-44': 4171,
+                    '45-49': 4666, '50-54': 6127, '55-59': 6522, '60': 7117, '61': 7649,
+                    '62': 8377, '63': 8914, '64': 9644, '65': 12585, '66': 14625,
+                    '67': 15976, '68': 17692, '69': 19467, '70': 23707, '71': 24640,
+                    '72': 25337, '73': 26268, '74': 26733, '75+': 27897
+                },
+                5000: {
+                    '18-24': 1871, '25-29': 2075, '30-34': 2321, '35-39': 2610, '40-44': 2895,
+                    '45-49': 3239, '50-54': 4230, '55-59': 4502, '60': 5181, '61': 5565,
+                    '62': 6099, '63': 6482, '64': 7017, '65': 8876, '66': 10317,
+                    '67': 11271, '68': 12484, '69': 13738, '70': 16171, '71': 16808,
+                    '72': 17281, '73': 17916, '74': 18236, '75+': 19028
+                },
+                10000: {
+                    '18-24': 1324, '25-29': 1469, '30-34': 1762, '35-39': 1979, '40-44': 2177,
+                    '45-49': 2434, '50-54': 3446, '55-59': 3667, '60': 4423, '61': 4753,
+                    '62': 5202, '63': 5535, '64': 5990, '65': 7995, '66': 9294,
+                    '67': 10150, '68': 11241, '69': 12371, '70': 14420, '71': 14984,
+                    '72': 15410, '73': 15978, '74': 16260, '75+': 16971
+                },
+                20000: {
+                    '18-24': 1036, '25-29': 1150, '30-34': 1385, '35-39': 1556, '40-44': 1710,
+                    '45-49': 1915, '50-54': 2716, '55-59': 2891, '60': 3592, '61': 3863,
+                    '62': 4229, '63': 4501, '64': 4868, '65': 6872, '66': 7990,
+                    '67': 8725, '68': 9664, '69': 10639, '70': 12514, '71': 13008,
+                    '72': 13375, '73': 13866, '74': 14114, '75+': 14730
+                },
+                50000: {
+                    '18-24': 746, '25-29': 829, '30-34': 997, '35-39': 1121, '40-44': 1231,
+                    '45-49': 1379, '50-54': 1955, '55-59': 2082, '60': 2589, '61': 2781,
+                    '62': 3046, '63': 3239, '64': 3505, '65': 4947, '66': 5752,
+                    '67': 6284, '68': 6959, '69': 7662, '70': 9011, '71': 9367,
+                    '72': 9630, '73': 9984, '74': 10163, '75+': 10605
+                }
+            },
+            'SPECIAL': {
+                2000: {
+                    '18-24': 2805, '25-29': 3099, '30-34': 3326, '35-39': 3729, '40-44': 4078,
+                    '45-49': 4562, '50-54': 5994, '55-59': 6378, '60-64': 8192, '65-69': 15624,
+                    '70-74': 24778, '75-79': 27277, '80+': 31586
+                },
+                5000: {
+                    '18-24': 1830, '25-29': 2030, '30-34': 2269, '35-39': 2551, '40-44': 2830,
+                    '45-49': 3166, '50-54': 4135, '55-59': 4403, '60-64': 5962, '65-69': 11020,
+                    '70-74': 16898, '75-79': 18606, '80+': 21543
+                },
+                10000: {
+                    '18-24': 1294, '25-29': 1434, '30-34': 1725, '35-39': 1935, '40-44': 2131,
+                    '45-49': 2379, '50-54': 3368, '55-59': 3587, '60-64': 5087, '65-69': 9924,
+                    '70-74': 15068, '75-79': 16592, '80+': 19212
+                },
+                20000: {
+                    '18-24': 969, '25-29': 1074, '30-34': 1295, '35-39': 1452, '40-44': 1597,
+                    '45-49': 1790, '50-54': 2536, '55-59': 2699, '60-64': 3949, '65-69': 8151,
+                    '70-74': 12495, '75-79': 13759, '80+': 15931
+                },
+                50000: {
+                    '18-24': 726, '25-29': 804, '30-34': 971, '35-39': 1090, '40-44': 1198,
+                    '45-49': 1343, '50-54': 1902, '55-59': 2026, '60-64': 2963, '65-69': 6114,
+                    '70-74': 9371, '75-79': 10319, '80+': 11950
+                }
+            },
+            'UNIVERSAL': {
+                2000: {
+                    '18-24': 4577, '25-29': 5060, '30-34': 5429, '35-39': 6082, '40-44': 6654,
+                    '45-49': 7444, '50-54': 9776, '55-59': 10404, '60': 11116, '61': 11944,
+                    '62': 13084, '63': 13915, '64': 15058, '65': 19651, '66': 22833,
+                    '67': 24945, '68': 27627, '69': 30394, '70': 37012, '71': 38468,
+                    '72': 39556, '73': 41016, '74': 41738, '75-79': 43555, '80+': 44492
+                },
+                5000: {
+                    '18-24': 3513, '25-29': 3898, '30-34': 4362, '35-39': 4895, '40-44': 5437,
+                    '45-49': 5167, '50-54': 6746, '55-59': 7184, '60': 8092, '61': 8692,
+                    '62': 9523, '63': 10123, '64': 10958, '65': 13862, '66': 16110,
+                    '67': 17597, '68': 19489, '69': 21446, '70': 25249, '71': 26241,
+                    '72': 26984, '73': 27975, '74': 28471, '75-79': 29711, '80+': 30347
+                },
+                10000: {
+                    '18-24': 2112, '25-29': 2346, '30-34': 2814, '35-39': 3159, '40-44': 3475,
+                    '45-49': 3885, '50-54': 5497, '55-59': 5850, '60': 6907, '61': 7425,
+                    '62': 8126, '63': 8645, '64': 9352, '65': 12479, '66': 14512,
+                    '67': 15850, '68': 17557, '69': 19315, '70': 22513, '71': 23400,
+                    '72': 24060, '73': 24947, '74': 25390, '75-79': 26495, '80+': 27065
+                },
+                20000: {
+                    '18-24': 1656, '25-29': 1840, '30-34': 2214, '35-39': 2483, '40-44': 2729,
+                    '45-49': 3055, '50-54': 4331, '55-59': 4612, '60': 5610, '61': 6030,
+                    '62': 6603, '63': 7026, '64': 7603, '65': 10732, '66': 12475,
+                    '67': 13629, '68': 15091, '69': 16611, '70': 19543, '71': 20312,
+                    '72': 20883, '73': 21655, '74': 22041, '75-79': 22997, '80+': 23491
+                },
+                50000: {
+                    '18-24': 1192, '25-29': 1323, '30-34': 1592, '35-39': 1789, '40-44': 1965,
+                    '45-49': 2200, '50-54': 3118, '55-59': 3321, '60': 4040, '61': 4343,
+                    '62': 4755, '63': 5058, '64': 5476, '65': 7728, '66': 8982,
+                    '67': 9812, '68': 10865, '69': 11959, '70': 14070, '71': 14626,
+                    '72': 15035, '73': 15591, '74': 15869, '75-79': 16559, '80+': 16912
+                }
+            },
+            'ABSOLUTE': {
+                2000: {
+                    '18-24': 6573, '25-29': 6640, '30-34': 7881, '35-39': 7957, '40-44': 8864,
+                    '45-49': 8918, '50-54': 12806, '55-59': 12929, '60': 16359, '61': 16782,
+                    '62': 17212, '63': 17553, '64': 18448, '65': 23982, '66': 29978,
+                    '67': 35971, '68': 41370, '69': 45505, '70': 50056, '71': 52559,
+                    '72': 55186, '73': 57946, '74': 60843, '75+': 63886
+                },
+                5000: {
+                    '18-24': 4638, '25-29': 4696, '30-34': 5867, '35-39': 5924, '40-44': 6482,
+                    '45-49': 6594, '50-54': 9387, '55-59': 9499, '60': 12908, '61': 13126,
+                    '62': 13456, '63': 13674, '64': 13894, '65': 18064, '66': 22578,
+                    '67': 27092, '68': 31155, '69': 34272, '70': 37700, '71': 39585,
+                    '72': 41563, '73': 43642, '74': 45823, '75+': 48114
+                },
+                10000: {
+                    '18-24': 3241, '25-29': 3429, '30-34': 4419, '35-39': 4528, '40-44': 4917,
+                    '45-49': 5035, '50-54': 7766, '55-59': 7840, '60': 10666, '61': 10939,
+                    '62': 11213, '63': 11432, '64': 11705, '65': 15218, '66': 19019,
+                    '67': 22824, '68': 26248, '69': 28873, '70': 31760, '71': 33348,
+                    '72': 35016, '73': 36766, '74': 38603, '75+': 40534
+                },
+                20000: {
+                    '18-24': 2629, '25-29': 2682, '30-34': 3524, '35-39': 3577, '40-44': 3857,
+                    '45-49': 3914, '50-54': 6092, '55-59': 6148, '60': 8753, '61': 9081,
+                    '62': 9188, '63': 9464, '64': 9627, '65': 12515, '66': 15644,
+                    '67': 18773, '68': 21588, '69': 23749, '70': 26123, '71': 27428,
+                    '72': 28801, '73': 30240, '74': 31752, '75+': 33340
+                },
+                50000: {
+                    '18-24': 1893, '25-29': 1931, '30-34': 2537, '35-39': 2574, '40-44': 2777,
+                    '45-49': 2818, '50-54': 4386, '55-59': 4427, '60': 6301, '61': 6539,
+                    '62': 6616, '63': 6814, '64': 6931, '65': 9010, '66': 11265,
+                    '67': 13516, '68': 15542, '69': 17100, '70': 18807, '71': 19749,
+                    '72': 20737, '73': 21772, '74': 22861, '75+': 24004
+                }
+            }
         };
+
+        // TABELAS PARA CRIANÇAS (0-17 anos) - VALORES ANUAIS EM USD POR CRIANÇA
+        const TABELAS_VUMI_CRIANCAS = {
+            'DIRECT': {
+                2000: { '1': 1118, '2': 1780, '3+': 2610 },
+                5000: { '1': 845, '2': 1342, '3+': 1965 },
+                10000: { '1': 710, '2': 1127, '3+': 1655 },
+                20000: { '1': 555, '2': 878, '3+': 1289 },
+                50000: { '1': 399, '2': 633, '3+': 928 }
+            },
+            'SPECIAL': {
+                2000: { '1': 1093, '2': 1743, '3+': 2553 },
+                5000: { '1': 823, '2': 1312, '3+': 1921 },
+                10000: { '1': 693, '2': 1103, '3+': 1618 },
+                20000: { '1': 519, '2': 820, '3+': 1203 },
+                50000: { '1': 389, '2': 614, '3+': 903 }
+            },
+            'UNIVERSAL': {
+                2000: { '1': 1686, '2': 2689, '3+': 3934 },
+                5000: { '1': 1273, '2': 2027, '3+': 2963 },
+                10000: { '1': 1073, '2': 1700, '3+': 2494 },
+                20000: { '1': 839, '2': 1325, '3+': 1946 },
+                50000: { '1': 604, '2': 955, '3+': 1400 }
+            },
+            'ABSOLUTE': {
+                2000: { '1': 2649, '2': 4766, '3+': 7147 },
+                5000: { '1': 1828, '2': 3289, '3+': 4931 },
+                10000: { '1': 1143, '2': 2055, '3+': 3083 },
+                20000: { '1': 943, '2': 1691, '3+': 2535 },
+                50000: { '1': 677, '2': 1218, '3+': 1825 }
+            }
+        };
+
+        // ============================================================
+        // TABELAS DE REAJUSTE POR FAIXA ETÁRIA
+        // ============================================================
         
+        const REAJUSTES_VUMI = {
+            'DIRECT': {
+                2000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.49}, {faixa: '30-34', pct: 7.36},
+                    {faixa: '35-39', pct: 12.05}, {faixa: '40-44', pct: 9.37}, {faixa: '45-49', pct: 11.87},
+                    {faixa: '50-54', pct: 31.30}, {faixa: '55-59', pct: 6.45}, {faixa: '60', pct: 9.12},
+                    {faixa: '61', pct: 7.48}, {faixa: '62', pct: 9.52}, {faixa: '63', pct: 6.40},
+                    {faixa: '64', pct: 8.19}, {faixa: '65', pct: 30.50}, {faixa: '66', pct: 16.20},
+                    {faixa: '67', pct: 9.24}, {faixa: '68', pct: 10.74}, {faixa: '69', pct: 10.03},
+                    {faixa: '70', pct: 21.78}, {faixa: '71', pct: 3.93}, {faixa: '72', pct: 2.83},
+                    {faixa: '73', pct: 3.67}, {faixa: '74', pct: 1.77}, {faixa: '75+', pct: 4.35}
+                ],
+                5000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.93}, {faixa: '30-34', pct: 11.85},
+                    {faixa: '35-39', pct: 12.42}, {faixa: '40-44', pct: 10.93}, {faixa: '45-49', pct: 11.90},
+                    {faixa: '50-54', pct: 30.60}, {faixa: '55-59', pct: 6.41}, {faixa: '60', pct: 15.09},
+                    {faixa: '61', pct: 7.41}, {faixa: '62', pct: 9.60}, {faixa: '63', pct: 6.27},
+                    {faixa: '64', pct: 8.26}, {faixa: '65', pct: 26.50}, {faixa: '66', pct: 16.23},
+                    {faixa: '67', pct: 9.25}, {faixa: '68', pct: 10.76}, {faixa: '69', pct: 10.05},
+                    {faixa: '70', pct: 17.73}, {faixa: '71', pct: 3.94}, {faixa: '72', pct: 2.81},
+                    {faixa: '73', pct: 3.67}, {faixa: '74', pct: 1.79}, {faixa: '75+', pct: 4.34}
+                ],
+                10000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.97}, {faixa: '30-34', pct: 19.91},
+                    {faixa: '35-39', pct: 12.33}, {faixa: '40-44', pct: 10.02}, {faixa: '45-49', pct: 11.78},
+                    {faixa: '50-54', pct: 41.59}, {faixa: '55-59', pct: 6.40}, {faixa: '60', pct: 20.64},
+                    {faixa: '61', pct: 7.45}, {faixa: '62', pct: 9.46}, {faixa: '63', pct: 6.40},
+                    {faixa: '64', pct: 8.22}, {faixa: '65', pct: 33.46}, {faixa: '66', pct: 16.26},
+                    {faixa: '67', pct: 9.20}, {faixa: '68', pct: 10.77}, {faixa: '69', pct: 10.05},
+                    {faixa: '70', pct: 16.56}, {faixa: '71', pct: 3.94}, {faixa: '72', pct: 2.82},
+                    {faixa: '73', pct: 3.69}, {faixa: '74', pct: 1.76}, {faixa: '75+', pct: 4.37}
+                ],
+                20000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 11.05}, {faixa: '30-34', pct: 20.46},
+                    {faixa: '35-39', pct: 12.32}, {faixa: '40-44', pct: 9.88}, {faixa: '45-49', pct: 12.03},
+                    {faixa: '50-54', pct: 41.78}, {faixa: '55-59', pct: 6.44}, {faixa: '60', pct: 24.28},
+                    {faixa: '61', pct: 7.52}, {faixa: '62', pct: 9.50}, {faixa: '63', pct: 6.42},
+                    {faixa: '64', pct: 8.15}, {faixa: '65', pct: 41.18}, {faixa: '66', pct: 16.27},
+                    {faixa: '67', pct: 9.25}, {faixa: '68', pct: 10.72}, {faixa: '69', pct: 10.09},
+                    {faixa: '70', pct: 17.65}, {faixa: '71', pct: 3.94}, {faixa: '72', pct: 2.82},
+                    {faixa: '73', pct: 3.70}, {faixa: '74', pct: 1.79}, {faixa: '75+', pct: 4.36}
+                ],
+                50000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 11.08}, {faixa: '30-34', pct: 20.33},
+                    {faixa: '35-39', pct: 12.43}, {faixa: '40-44', pct: 9.74}, {faixa: '45-49', pct: 12.06},
+                    {faixa: '50-54', pct: 41.74}, {faixa: '55-59', pct: 6.51}, {faixa: '60', pct: 24.34},
+                    {faixa: '61', pct: 7.45}, {faixa: '62', pct: 9.53}, {faixa: '63', pct: 6.33},
+                    {faixa: '64', pct: 8.21}, {faixa: '65', pct: 41.12}, {faixa: '66', pct: 16.26},
+                    {faixa: '67', pct: 9.25}, {faixa: '68', pct: 10.75}, {faixa: '69', pct: 10.10},
+                    {faixa: '70', pct: 17.64}, {faixa: '71', pct: 3.95}, {faixa: '72', pct: 2.80},
+                    {faixa: '73', pct: 3.70}, {faixa: '74', pct: 1.79}, {faixa: '75+', pct: 4.35}
+                ]
+            },
+            'SPECIAL': {
+                2000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.49}, {faixa: '30-34', pct: 7.32},
+                    {faixa: '35-39', pct: 12.13}, {faixa: '40-44', pct: 9.35}, {faixa: '45-49', pct: 11.87},
+                    {faixa: '50-54', pct: 31.40}, {faixa: '55-59', pct: 6.40}, {faixa: '60-64', pct: 28.46},
+                    {faixa: '65-69', pct: 90.71}, {faixa: '70-74', pct: 58.59}, {faixa: '75-79', pct: 10.09},
+                    {faixa: '80+', pct: 15.80}
+                ],
+                5000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.90}, {faixa: '30-34', pct: 11.82},
+                    {faixa: '35-39', pct: 12.39}, {faixa: '40-44', pct: 10.94}, {faixa: '45-49', pct: 11.90},
+                    {faixa: '50-54', pct: 30.60}, {faixa: '55-59', pct: 6.46}, {faixa: '60-64', pct: 35.43},
+                    {faixa: '65-69', pct: 84.83}, {faixa: '70-74', pct: 53.34}, {faixa: '75-79', pct: 10.11},
+                    {faixa: '80+', pct: 15.78}
+                ],
+                10000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.87}, {faixa: '30-34', pct: 20.29},
+                    {faixa: '35-39', pct: 12.13}, {faixa: '40-44', pct: 10.14}, {faixa: '45-49', pct: 11.66},
+                    {faixa: '50-54', pct: 41.55}, {faixa: '55-59', pct: 6.50}, {faixa: '60-64', pct: 41.81},
+                    {faixa: '65-69', pct: 95.09}, {faixa: '70-74', pct: 51.83}, {faixa: '75-79', pct: 10.11},
+                    {faixa: '80+', pct: 15.79}
+                ],
+                20000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.80}, {faixa: '30-34', pct: 20.73},
+                    {faixa: '35-39', pct: 12.12}, {faixa: '40-44', pct: 9.98}, {faixa: '45-49', pct: 12.08},
+                    {faixa: '50-54', pct: 41.72}, {faixa: '55-59', pct: 6.40}, {faixa: '60-64', pct: 46.32},
+                    {faixa: '65-69', pct: 106.40}, {faixa: '70-74', pct: 53.29}, {faixa: '75-79', pct: 10.12},
+                    {faixa: '80+', pct: 15.79}
+                ],
+                50000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.81}, {faixa: '30-34', pct: 20.73},
+                    {faixa: '35-39', pct: 12.23}, {faixa: '40-44', pct: 9.90}, {faixa: '45-49', pct: 12.10},
+                    {faixa: '50-54', pct: 41.64}, {faixa: '55-59', pct: 6.53}, {faixa: '60-64', pct: 46.21},
+                    {faixa: '65-69', pct: 106.36}, {faixa: '70-74', pct: 53.27}, {faixa: '75-79', pct: 10.12},
+                    {faixa: '80+', pct: 15.80}
+                ]
+            },
+            'UNIVERSAL': {
+                2000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.55}, {faixa: '30-34', pct: 7.30},
+                    {faixa: '35-39', pct: 12.03}, {faixa: '40-44', pct: 9.41}, {faixa: '45-49', pct: 11.86},
+                    {faixa: '50-54', pct: 31.34}, {faixa: '55-59', pct: 6.42}, {faixa: '60', pct: 6.84},
+                    {faixa: '61', pct: 7.45}, {faixa: '62', pct: 9.55}, {faixa: '63', pct: 6.35},
+                    {faixa: '64', pct: 8.22}, {faixa: '65', pct: 30.50}, {faixa: '66', pct: 16.20},
+                    {faixa: '67', pct: 9.25}, {faixa: '68', pct: 10.75}, {faixa: '69', pct: 10.01},
+                    {faixa: '70', pct: 21.78}, {faixa: '71', pct: 3.93}, {faixa: '72', pct: 2.83},
+                    {faixa: '73', pct: 3.69}, {faixa: '74', pct: 1.76}, {faixa: '75-79', pct: 4.35},
+                    {faixa: '80+', pct: 2.15}
+                ],
+                5000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.95}, {faixa: '30-34', pct: 11.91},
+                    {faixa: '35-39', pct: 12.22}, {faixa: '40-44', pct: 11.07}, {faixa: '45-49', pct: -4.97},
+                    {faixa: '50-54', pct: 30.57}, {faixa: '55-59', pct: 6.50}, {faixa: '60', pct: 12.64},
+                    {faixa: '61', pct: 7.41}, {faixa: '62', pct: 9.57}, {faixa: '63', pct: 6.30},
+                    {faixa: '64', pct: 8.25}, {faixa: '65', pct: 26.50}, {faixa: '66', pct: 16.22},
+                    {faixa: '67', pct: 9.23}, {faixa: '68', pct: 10.75}, {faixa: '69', pct: 10.04},
+                    {faixa: '70', pct: 17.73}, {faixa: '71', pct: 3.93}, {faixa: '72', pct: 2.83},
+                    {faixa: '73', pct: 3.67}, {faixa: '74', pct: 1.77}, {faixa: '75-79', pct: 4.36},
+                    {faixa: '80+', pct: 2.14}
+                ],
+                10000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 11.04}, {faixa: '30-34', pct: 19.98},
+                    {faixa: '35-39', pct: 12.24}, {faixa: '40-44', pct: 10.01}, {faixa: '45-49', pct: 11.79},
+                    {faixa: '50-54', pct: 41.50}, {faixa: '55-59', pct: 6.42}, {faixa: '60', pct: 18.07},
+                    {faixa: '61', pct: 7.50}, {faixa: '62', pct: 9.44}, {faixa: '63', pct: 6.38},
+                    {faixa: '64', pct: 8.18}, {faixa: '65', pct: 33.44}, {faixa: '66', pct: 16.29},
+                    {faixa: '67', pct: 9.22}, {faixa: '68', pct: 10.77}, {faixa: '69', pct: 10.01},
+                    {faixa: '70', pct: 16.56}, {faixa: '71', pct: 3.94}, {faixa: '72', pct: 2.82},
+                    {faixa: '73', pct: 3.69}, {faixa: '74', pct: 1.78}, {faixa: '75-79', pct: 4.35},
+                    {faixa: '80+', pct: 2.15}
+                ],
+                20000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 11.13}, {faixa: '30-34', pct: 20.32},
+                    {faixa: '35-39', pct: 12.16}, {faixa: '40-44', pct: 9.92}, {faixa: '45-49', pct: 11.94},
+                    {faixa: '50-54', pct: 41.74}, {faixa: '55-59', pct: 6.49}, {faixa: '60', pct: 21.65},
+                    {faixa: '61', pct: 7.48}, {faixa: '62', pct: 9.51}, {faixa: '63', pct: 6.40},
+                    {faixa: '64', pct: 8.21}, {faixa: '65', pct: 41.16}, {faixa: '66', pct: 16.24},
+                    {faixa: '67', pct: 9.25}, {faixa: '68', pct: 10.72}, {faixa: '69', pct: 10.07},
+                    {faixa: '70', pct: 17.65}, {faixa: '71', pct: 3.94}, {faixa: '72', pct: 2.81},
+                    {faixa: '73', pct: 3.70}, {faixa: '74', pct: 1.78}, {faixa: '75-79', pct: 4.34},
+                    {faixa: '80+', pct: 2.15}
+                ],
+                50000: [
+                    {faixa: '18-24', pct: 0}, {faixa: '25-29', pct: 10.97}, {faixa: '30-34', pct: 20.35},
+                    {faixa: '35-39', pct: 12.32}, {faixa: '40-44', pct: 9.87}, {faixa: '45-49', pct: 11.92},
+                    {faixa: '50-54', pct: 41.77}, {faixa: '55-59', pct: 6.50}, {faixa: '60', pct: 21.63},
+                    {faixa: '61', pct: 7.50}, {faixa: '62', pct: 9.49}, {faixa: '63', pct: 6.37},
+                    {faixa: '64', pct: 8.28}, {faixa: '65', pct: 41.12}, {faixa: '66', pct: 16.22},
+                    {faixa: '67', pct: 9.25}, {faixa: '68', pct: 10.73}, {faixa: '69', pct: 10.07},
+                    {faixa: '70', pct: 17.64}, {faixa: '71', pct: 3.95}, {faixa: '72', pct: 2.80},
+                    {faixa: '73', pct: 3.70}, {faixa: '74', pct: 1.78}, {faixa: '75-79', pct: 4.35},
+                    {faixa: '80+', pct: 2.13}
+                ]
+            },
+            'ABSOLUTE': {
+                2000: [
+                    {faixa: '18-24', pct: 1.03}, {faixa: '25-29', pct: 18.68}, {faixa: '30-34', pct: 0.96},
+                    {faixa: '35-39', pct: 11.40}, {faixa: '40-44', pct: 0.62}, {faixa: '45-49', pct: 43.59},
+                    {faixa: '50-54', pct: 0.96}, {faixa: '55-59', pct: 26.53}, {faixa: '60', pct: 2.58},
+                    {faixa: '61', pct: 2.56}, {faixa: '62', pct: 1.98}, {faixa: '63', pct: 5.10},
+                    {faixa: '64', pct: 30.00}, {faixa: '65', pct: 19.99}, {faixa: '66', pct: 15.01},
+                    {faixa: '67', pct: 9.99}, {faixa: '68', pct: 10.00}, {faixa: '69', pct: 5.00},
+                    {faixa: '70', pct: 5.00}, {faixa: '71', pct: 5.00}, {faixa: '72', pct: 5.00},
+                    {faixa: '73', pct: 5.00}, {faixa: '74', pct: 5.00}, {faixa: '75+', pct: 5.00}
+                ],
+                5000: [
+                    {faixa: '18-24', pct: 1.25}, {faixa: '25-29', pct: 24.93}, {faixa: '30-34', pct: 0.97},
+                    {faixa: '35-39', pct: 9.43}, {faixa: '40-44', pct: 1.73}, {faixa: '45-49', pct: 42.35},
+                    {faixa: '50-54', pct: 1.20}, {faixa: '55-59', pct: 35.89}, {faixa: '60', pct: 1.68},
+                    {faixa: '61', pct: 2.52}, {faixa: '62', pct: 1.61}, {faixa: '63', pct: 1.61},
+                    {faixa: '64', pct: 30.01}, {faixa: '65', pct: 19.99}, {faixa: '66', pct: 15.00},
+                    {faixa: '67', pct: 10.00}, {faixa: '68', pct: 10.00}, {faixa: '69', pct: 5.00},
+                    {faixa: '70', pct: 5.00}, {faixa: '71', pct: 5.00}, {faixa: '72', pct: 5.00},
+                    {faixa: '73', pct: 5.00}, {faixa: '74', pct: 5.00}, {faixa: '75+', pct: 5.00}
+                ],
+                10000: [
+                    {faixa: '18-24', pct: 5.81}, {faixa: '25-29', pct: 28.86}, {faixa: '30-34', pct: 2.47},
+                    {faixa: '35-39', pct: 8.58}, {faixa: '40-44', pct: 2.42}, {faixa: '45-49', pct: 54.23},
+                    {faixa: '50-54', pct: 0.95}, {faixa: '55-59', pct: 36.04}, {faixa: '60', pct: 2.56},
+                    {faixa: '61', pct: 2.50}, {faixa: '62', pct: 1.96}, {faixa: '63', pct: 2.39},
+                    {faixa: '64', pct: 30.01}, {faixa: '65', pct: 20.01}, {faixa: '66', pct: 15.00},
+                    {faixa: '67', pct: 10.00}, {faixa: '68', pct: 10.00}, {faixa: '69', pct: 5.00},
+                    {faixa: '70', pct: 5.00}, {faixa: '71', pct: 5.00}, {faixa: '72', pct: 5.00},
+                    {faixa: '73', pct: 5.00}, {faixa: '74', pct: 5.00}, {faixa: '75+', pct: 5.00}
+                ],
+                20000: [
+                    {faixa: '18-24', pct: 2.04}, {faixa: '25-29', pct: 31.35}, {faixa: '30-34', pct: 1.52},
+                    {faixa: '35-39', pct: 7.84}, {faixa: '40-44', pct: 1.47}, {faixa: '45-49', pct: 55.63},
+                    {faixa: '50-54', pct: 0.93}, {faixa: '55-59', pct: 42.36}, {faixa: '60', pct: 3.75},
+                    {faixa: '61', pct: 1.18}, {faixa: '62', pct: 3.00}, {faixa: '63', pct: 1.72},
+                    {faixa: '64', pct: 30.00}, {faixa: '65', pct: 20.00}, {faixa: '66', pct: 15.00},
+                    {faixa: '67', pct: 10.00}, {faixa: '68', pct: 10.01}, {faixa: '69', pct: 5.00},
+                    {faixa: '70', pct: 5.00}, {faixa: '71', pct: 5.00}, {faixa: '72', pct: 5.00},
+                    {faixa: '73', pct: 5.00}, {faixa: '74', pct: 5.00}, {faixa: '75+', pct: 5.00}
+                ],
+                50000: [
+                    {faixa: '18-24', pct: 2.04}, {faixa: '25-29', pct: 31.36}, {faixa: '30-34', pct: 1.48},
+                    {faixa: '35-39', pct: 7.86}, {faixa: '40-44', pct: 1.50}, {faixa: '45-49', pct: 55.62},
+                    {faixa: '50-54', pct: 0.93}, {faixa: '55-59', pct: 42.35}, {faixa: '60', pct: 3.77},
+                    {faixa: '61', pct: 1.18}, {faixa: '62', pct: 2.99}, {faixa: '63', pct: 1.73},
+                    {faixa: '64', pct: 29.99}, {faixa: '65', pct: 19.98}, {faixa: '66', pct: 14.99},
+                    {faixa: '67', pct: 10.02}, {faixa: '68', pct: 10.00}, {faixa: '69', pct: 5.00},
+                    {faixa: '70', pct: 5.00}, {faixa: '71', pct: 5.00}, {faixa: '72', pct: 5.01},
+                    {faixa: '73', pct: 5.00}, {faixa: '74', pct: 4.99}, {faixa: '75+', pct: 5.00}
+                ]
+            }
+        };
+
+        // Multiplicadores para franquias AGRO
+        const AGRO_MULTIPLICADORES = {
+            500: 1.238,    // +23.8% sobre $2,000
+            1000: 1.155    // +15.5% sobre $2,000
+        };
+
         let pessoas = [];
         let contadorPessoas = 0;
         let graficoMensal = null;
         let graficoAcumulado = null;
         let dadosCalculados = { anual: [], pessoas: [] };
-        
+        let isAgro = false;
+
         document.getElementById('reajusteAnualVumi').addEventListener('change', function() {
             document.getElementById('pctReajusteVumi').disabled = !this.checked;
         });
-        
+
+        function toggleAgroMode() {
+            isAgro = document.getElementById('isClienteAgro').checked;
+            const selectFranquia = document.getElementById('franquiaVumi');
+            
+            selectFranquia.innerHTML = '';
+            
+            if (isAgro) {
+                selectFranquia.innerHTML += '<option value="500">$500 (Agro - +23,8%)</option>';
+                selectFranquia.innerHTML += '<option value="1000">$1,000 (Agro - +15,5%)</option>';
+                selectFranquia.innerHTML += '<option value="2000">$2,000 (Padrão)</option>';
+                selectFranquia.innerHTML += '<option value="5000">$5,000</option>';
+                selectFranquia.innerHTML += '<option value="10000">$10,000</option>';
+                selectFranquia.innerHTML += '<option value="20000">$20,000</option>';
+                selectFranquia.innerHTML += '<option value="50000">$50,000</option>';
+                
+                document.querySelectorAll('.pessoa-item').forEach(item => {
+                    item.classList.add('agro');
+                });
+            } else {
+                selectFranquia.innerHTML += '<option value="2000">$2,000 (Padrão)</option>';
+                selectFranquia.innerHTML += '<option value="5000">$5,000</option>';
+                selectFranquia.innerHTML += '<option value="10000">$10,000</option>';
+                selectFranquia.innerHTML += '<option value="20000">$20,000</option>';
+                selectFranquia.innerHTML += '<option value="50000">$50,000</option>';
+                
+                document.querySelectorAll('.pessoa-item').forEach(item => {
+                    item.classList.remove('agro');
+                });
+            }
+            
+            atualizarTodosValoresVumi();
+        }
+
+        function selecionarPlano(plano) {
+            document.querySelectorAll('.plano-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById(`plano-${plano}`).classList.add('selected');
+            document.getElementById('planoVumiSelecionado').value = plano;
+            atualizarTodosValoresVumi();
+        }
+
+        function atualizarInfoAniversario() {
+            const dataAniv = document.getElementById('dataAniversarioApolice').value;
+            const infoDiv = document.getElementById('infoAniversario');
+            
+            if (!dataAniv) {
+                infoDiv.style.display = 'none';
+                return;
+            }
+            
+            const hoje = new Date();
+            const aniv = new Date(dataAniv);
+            const mesAniv = aniv.getMonth();
+            const diaAniv = aniv.getDate();
+            
+            const anivEsteAno = new Date(hoje.getFullYear(), mesAniv, diaAniv);
+            const jaPassou = hoje > anivEsteAno;
+            
+            infoDiv.style.display = 'block';
+            infoDiv.innerHTML = `
+                <strong>Aniversário da Apólice:</strong> ${diaAniv}/${mesAniv + 1}<br>
+                <span class="${jaPassou ? 'aniversario-passou' : 'aniversario-futuro'}">
+                    ${jaPassou ? '⚠️ JÁ PASSOU este ano - Reajustes já aplicados' : '✅ AINDA VAI ACONTECER este ano - Reajustes ainda não aplicados'}
+                </span><br>
+                <small>Os cálculos considerarão automaticamente esta informação.</small>
+            `;
+        }
+
+        function getFaixaEtaria(idade, plano) {
+            if (plano === 'SPECIAL') {
+                if (idade >= 80) return '80+';
+                if (idade >= 75) return '75-79';
+                if (idade >= 70) return '70-74';
+                if (idade >= 65) return '65-69';
+                if (idade >= 60) return '60-64';
+                if (idade >= 55) return '55-59';
+                if (idade >= 50) return '50-54';
+                if (idade >= 45) return '45-49';
+                if (idade >= 40) return '40-44';
+                if (idade >= 35) return '35-39';
+                if (idade >= 30) return '30-34';
+                if (idade >= 25) return '25-29';
+                return '18-24';
+            }
+            
+            if (plano === 'ABSOLUTE' || plano === 'UNIVERSAL' || plano === 'DIRECT') {
+                if (idade >= 75) return '75+';
+                if (idade >= 71) return idade.toString();
+                if (idade === 70) return '70';
+                if (idade === 69) return '69';
+                if (idade === 68) return '68';
+                if (idade === 67) return '67';
+                if (idade === 66) return '66';
+                if (idade === 65) return '65';
+                if (idade === 64) return '64';
+                if (idade === 63) return '63';
+                if (idade === 62) return '62';
+                if (idade === 61) return '61';
+                if (idade === 60) return '60';
+                if (idade >= 55) return '55-59';
+                if (idade >= 50) return '50-54';
+                if (idade >= 45) return '45-49';
+                if (idade >= 40) return '40-44';
+                if (idade >= 35) return '35-39';
+                if (idade >= 30) return '30-34';
+                if (idade >= 25) return '25-29';
+                if (idade >= 18) return '18-24';
+                return '0-17';
+            }
+            
+            return '18-24';
+        }
+
+        function getReajusteVumi(idade, plano, franquia) {
+            const faixa = getFaixaEtaria(idade, plano);
+            const tabela = REAJUSTES_VUMI[plano][franquia];
+            if (!tabela) return 0;
+            
+            const reajuste = tabela.find(r => r.faixa === faixa);
+            return reajuste ? reajuste.pct : 0;
+        }
+
+        function getValorVumiPorIdade(idade, plano, franquia) {
+            // Se for criança (0-17 anos), retornar null (será calculado separadamente)
+            if (idade < 18) return null;
+            
+            // Adultos (18+ anos) - usar tabela normal
+            let franquiaBase = franquia;
+            let multiplicador = 1;
+            
+            if (isAgro && (franquia == 500 || franquia == 1000)) {
+                multiplicador = AGRO_MULTIPLICADORES[franquia];
+                franquiaBase = 2000;
+            }
+            
+            const faixa = getFaixaEtaria(idade, plano);
+            const tabela = TABELAS_VUMI_ADULTOS[plano][franquiaBase];
+            if (!tabela) return 0;
+            
+            const valorBase = tabela[faixa] || tabela['18-24'] || 0;
+            return valorBase * multiplicador;
+        }
+
+        function contarCriancasNaApolice(anoReferencia) {
+            let count = 0;
+            pessoas.forEach(p => {
+                if (p.nasc) {
+                    const idade = calcularIdade(p.nasc, anoReferencia);
+                    if (idade < 18) count++;
+                }
+            });
+            return count;
+        }
+
+        function getValorCrianca(quantidadeCriancas, plano, franquia) {
+            let franquiaBase = franquia;
+            let multiplicador = 1;
+            
+            if (isAgro && (franquia == 500 || franquia == 1000)) {
+                multiplicador = AGRO_MULTIPLICADORES[franquia];
+                franquiaBase = 2000;
+            }
+            
+            let qtdChave = '1';
+            if (quantidadeCriancas === 2) qtdChave = '2';
+            else if (quantidadeCriancas >= 3) qtdChave = '3+';
+            
+            const tabela = TABELAS_VUMI_CRIANCAS[plano][franquiaBase];
+            if (!tabela) return 0;
+            
+            const valorBase = tabela[qtdChave] || tabela['1'] || 0;
+            return valorBase * multiplicador;
+        }
+
         function adicionarPessoa() {
             contadorPessoas++;
             const div = document.createElement('div');
             div.className = 'pessoa-item';
+            if (isAgro) div.classList.add('agro');
             div.id = `pessoa-${contadorPessoas}`;
             div.innerHTML = `
                 <div class="pessoa-header">
-                    <strong>Pessoa #${contadorPessoas}</strong>
+                    <strong>Pessoa #${contadorPessoas} <span id="badge-crianca-${contadorPessoas}" style="display:none;" class="badge badge-crianca">👶 CRIANÇA</span> ${isAgro ? '<span class="badge badge-agro">AGRO</span>' : ''}</strong>
                     <button class="btn btn-danger" onclick="removerPessoa(${contadorPessoas})">Remover</button>
                 </div>
                 <div class="pessoa-grid">
@@ -235,10 +915,11 @@
                     </div>
                     <div class="form-group" style="margin:0;">
                         <label>Data Nascimento</label>
-                        <input type="date" class="nascimento-pessoa">
+                        <input type="date" class="nascimento-pessoa" onchange="atualizarValorVumiAutomatico(${contadorPessoas})">
+                        <div id="info-aniv-${contadorPessoas}" class="aniversario-info" style="display: none; margin-top: 5px;"></div>
                     </div>
                     <div class="form-group" style="margin:0;">
-                        <label>Valor Mensal Atual (R$)</label>
+                        <label>Valor Bradesco (R$)</label>
                         <input type="number" class="valor-pessoa" placeholder="850.00" step="0.01">
                     </div>
                     <div class="form-group" style="margin:0;">
@@ -250,112 +931,278 @@
                             <option value="dependente">Outro Dependente</option>
                         </select>
                     </div>
+                    <div class="form-group" style="margin:0;">
+                        <label>Valor VUMI USD (Anual)</label>
+                        <input type="number" class="valor-vumi-usd" placeholder="Auto" step="0.01" readonly style="background: #f5f5f5;">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label>Valor VUMI R$ (Mensal)</label>
+                        <input type="number" class="valor-vumi-rs" placeholder="Auto" step="0.01" readonly style="background: #e3f2fd; font-weight: bold;">
+                    </div>
                 </div>
             `;
             document.getElementById('pessoasContainer').appendChild(div);
         }
-        
+
+        function atualizarValorVumiAutomatico(id) {
+            const item = document.getElementById(`pessoa-${id}`);
+            const dataNasc = item.querySelector('.nascimento-pessoa').value;
+            const infoDiv = document.getElementById(`info-aniv-${id}`);
+            const badgeCrianca = document.getElementById(`badge-crianca-${id}`);
+            
+            if (!dataNasc) {
+                infoDiv.style.display = 'none';
+                badgeCrianca.style.display = 'none';
+                item.classList.remove('crianca');
+                return;
+            }
+            
+            const hoje = new Date();
+            const nasc = new Date(dataNasc);
+            let idadeAtual = hoje.getFullYear() - nasc.getFullYear();
+            const mesAtual = hoje.getMonth() - nasc.getMonth();
+            if (mesAtual < 0 || (mesAtual === 0 && hoje.getDate() < nasc.getDate())) {
+                idadeAtual--;
+            }
+            
+            const plano = document.getElementById('planoVumiSelecionado').value;
+            const franquia = parseInt(document.getElementById('franquiaVumi').value) || 2000;
+            const cotacao = parseFloat(document.getElementById('cotacaoDolar').value) || 5;
+            
+            // Verificar se é criança (0-17 anos) no momento atual
+            const isCriancaAtual = idadeAtual < 18;
+            
+            if (isCriancaAtual) {
+                badgeCrianca.style.display = 'inline-block';
+                item.classList.add('crianca');
+            } else {
+                badgeCrianca.style.display = 'none';
+                item.classList.remove('crianca');
+            }
+            
+            // Para preview inicial, usamos o valor de criança se for criança agora
+            // ou valor de adulto se já for adulto
+            let valorAnualUSD;
+            if (isCriancaAtual) {
+                // Contar crianças no momento atual para preview
+                const numCriancas = contarCriancasNoMomento();
+                valorAnualUSD = getValorCrianca(numCriancas || 1, plano, franquia);
+            } else {
+                valorAnualUSD = getValorVumiPorIdade(idadeAtual, plano, franquia);
+            }
+            
+            const valorMensalUSD = valorAnualUSD / 12;
+            const valorMensalRS = valorMensalUSD * cotacao;
+            
+            item.querySelector('.valor-vumi-usd').value = valorAnualUSD.toFixed(2);
+            item.querySelector('.valor-vumi-rs').value = valorMensalRS.toFixed(2);
+            
+            let infoText = `
+                <strong>Idade:</strong> ${idadeAtual} anos<br>
+                <strong>Faixa:</strong> ${isCriancaAtual ? '0-17 (Criança)' : getFaixaEtaria(idadeAtual, plano)} | <strong>Plano:</strong> ${plano}
+            `;
+            
+            if (isCriancaAtual) {
+                infoText += `<br><span class="badge badge-crianca">👶 TARIFA INFANTIL</span>`;
+            }
+            
+            if (isAgro && (franquia == 500 || franquia == 1000)) {
+                infoText += `<br><span class="badge badge-agro">AGRO: +${((AGRO_MULTIPLICADORES[franquia]-1)*100).toFixed(1)}%</span>`;
+            }
+            
+            if (!isCriancaAtual) {
+                infoText += `<br><strong>Reajuste Faixa:</strong> ${getReajusteVumi(idadeAtual, plano, franquia).toFixed(2)}%`;
+            }
+            
+            infoDiv.innerHTML = infoText;
+            infoDiv.style.display = 'block';
+        }
+
+        function contarCriancasNoMomento() {
+            let count = 0;
+            const items = document.querySelectorAll('.pessoa-item');
+            items.forEach(item => {
+                const dataNasc = item.querySelector('.nascimento-pessoa').value;
+                if (dataNasc) {
+                    const hoje = new Date();
+                    const nasc = new Date(dataNasc);
+                    let idade = hoje.getFullYear() - nasc.getFullYear();
+                    const mes = hoje.getMonth() - nasc.getMonth();
+                    if (mes < 0 || (mes === 0 && hoje.getDate() < nasc.getDate())) idade--;
+                    if (idade < 18) count++;
+                }
+            });
+            return count;
+        }
+
+        function atualizarTodosValoresVumi() {
+            const items = document.querySelectorAll('.pessoa-item');
+            items.forEach(item => {
+                const id = item.id.split('-')[1];
+                if (item.querySelector('.nascimento-pessoa').value) {
+                    atualizarValorVumiAutomatico(id);
+                }
+            });
+        }
+
         function removerPessoa(id) {
             document.getElementById(`pessoa-${id}`).remove();
         }
-        
+
         window.onload = function() {
             document.getElementById('anoInicio').value = new Date().getFullYear();
             for(let i=0; i<3; i++) adicionarPessoa();
         };
-        
+
         function calcularIdade(dataNasc, anoReferencia) {
             const nasc = new Date(dataNasc);
-            return anoReferencia - nasc.getFullYear();
+            const mes = nasc.getMonth();
+            const dia = nasc.getDate();
+            const anoNasc = nasc.getFullYear();
+            
+            let idade = anoReferencia - anoNasc;
+            
+            // Ajustar se ainda não fez aniversário no ano de referência
+            const hoje = new Date();
+            const dataRef = new Date(anoReferencia, hoje.getMonth(), hoje.getDate());
+            const anivNoAnoRef = new Date(anoReferencia, mes, dia);
+            
+            if (dataRef < anivNoAnoRef) {
+                idade--;
+            }
+            
+            return idade;
         }
-        
-        function encontrarFaixa(idade, faixas) {
-            return faixas.find(f => idade >= f.min && idade <= f.max) || faixas[faixas.length - 1];
-        }
-        
+
         function formatarMoeda(valor) {
             return 'R$ ' + valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         }
+
+        function deveAplicarReajusteInicial(dataNasc, dataAnivApolice) {
+            if (!dataAnivApolice) return false;
+            
+            const hoje = new Date();
+            const nasc = new Date(dataNasc);
+            const anivApolice = new Date(dataAnivApolice);
+            const anivApoliceEsteAno = new Date(hoje.getFullYear(), anivApolice.getMonth(), anivApolice.getDate());
+            const anivPessoaEsteAno = new Date(hoje.getFullYear(), nasc.getMonth(), nasc.getDate());
+            
+            if (hoje >= anivApoliceEsteAno) {
+                return hoje >= anivPessoaEsteAno;
+            }
+            return false;
+        }
+
+        function usarValoresTabelaVumi() {
+            const items = document.querySelectorAll('.pessoa-item');
+            let preenchidos = 0;
+            
+            items.forEach(item => {
+                const dataNasc = item.querySelector('.nascimento-pessoa').value;
+                if (dataNasc) {
+                    const id = item.id.split('-')[1];
+                    atualizarValorVumiAutomatico(id);
+                    preenchidos++;
+                }
+            });
+            
+            alert(`${preenchidos} pessoa(s) atualizada(s) com valores da tabela VUMI!`);
+        }
+
         function calcularTudo() {
-            // Coletar dados das pessoas
             pessoas = [];
             const items = document.querySelectorAll('.pessoa-item');
+            const dataAnivApolice = document.getElementById('dataAniversarioApolice').value;
+            const plano = document.getElementById('planoVumiSelecionado').value;
+            const franquia = parseInt(document.getElementById('franquiaVumi').value) || 2000;
+            const cotacao = parseFloat(document.getElementById('cotacaoDolar').value) || 5;
+            const anoInicio = parseInt(document.getElementById('anoInicio').value);
+            
+            // Primeiro, coletar todas as pessoas
             items.forEach(item => {
                 const nome = item.querySelector('.nome-pessoa').value || 'Sem nome';
                 const nasc = item.querySelector('.nascimento-pessoa').value;
-                const valor = parseFloat(item.querySelector('.valor-pessoa').value);
+                const valorBradesco = parseFloat(item.querySelector('.valor-pessoa').value) || 0;
                 const tipo = item.querySelector('.tipo-pessoa').value;
                 
-                if (nasc && valor) {
-                    pessoas.push({ nome, nasc, valor, tipo, id: pessoas.length });
+                if (nasc) {
+                    const idadeAtual = calcularIdade(nasc, anoInicio);
+                    
+                    pessoas.push({
+                        nome, 
+                        nasc, 
+                        valorBradesco, 
+                        tipo, 
+                        idadeAtual,
+                        id: pessoas.length,
+                        jaPassouAniv: deveAplicarReajusteInicial(nasc, dataAnivApolice)
+                    });
                 }
             });
             
             if (pessoas.length === 0) {
-                alert('Adicione pelo menos uma pessoa com dados completos!');
+                alert('Adicione pelo menos uma pessoa com data de nascimento!');
                 return;
             }
             
-            const anoInicio = parseInt(document.getElementById('anoInicio').value);
-            const idadeLimite = parseInt(document.getElementById('idadeLimite').value);
-            const franquia = document.getElementById('franquiaVumi').value;
+            let idadeLimite = parseInt(document.getElementById('idadeLimite').value);
             
             const reajusteBradescoAnual = document.getElementById('reajusteAnualBradesco').checked ? 
                 parseFloat(document.getElementById('pctReajusteBradesco').value) || 0 : 0;
             const reajusteVumiAnual = document.getElementById('reajusteAnualVumi').checked ? 
                 parseFloat(document.getElementById('pctReajusteVumi').value) || 0 : 0;
             
-            // Calcular projeção INDIVIDUAL para cada pessoa
             dadosCalculados = { anual: [], pessoas: [] };
             
             pessoas.forEach(pessoa => {
-                const idadeAtual = calcularIdade(pessoa.nasc, anoInicio);
-                const anosProj = Math.min(idadeLimite - idadeAtual, 80 - idadeAtual);
+                const idadeAtual = pessoa.idadeAtual;
                 
-                if (anosProj <= 0) {
-                    alert(`${pessoa.nome} já atingiu a idade limite!`);
-                    return;
+                if (idadeAtual >= idadeLimite) {
+                    alert(`${pessoa.nome} já tem ${idadeAtual} anos. Ajustando projeção.`);
+                    idadeLimite = idadeAtual + 1;
                 }
                 
-                // Calcular projeção Bradesco para esta pessoa
-                const projBradesco = calcularProjecaoIndividual(
-                    'bradesco', 
-                    pessoa.valor, 
+                const anosProj = Math.min(idadeLimite - idadeAtual, 80 - idadeAtual);
+                if (anosProj <= 0) return;
+                
+                const projBradesco = calcularProjecaoBradesco(
+                    pessoa.valorBradesco || 0, 
                     idadeAtual, 
                     anosProj, 
                     anoInicio, 
-                    reajusteBradescoAnual
+                    reajusteBradescoAnual,
+                    pessoa.jaPassouAniv
                 );
                 
-                // Calcular projeção VUMI para esta pessoa
-                const projVumi = calcularProjecaoIndividual(
-                    'vumi', 
-                    pessoa.valor, 
-                    idadeAtual, 
-                    anosProj, 
-                    anoInicio, 
+                const projVumi = calcularProjecaoVumiDinamico(
+                    pessoa.nasc,
+                    idadeAtual,
+                    anosProj,
+                    anoInicio,
                     reajusteVumiAnual,
-                    franquia
+                    franquia,
+                    plano,
+                    cotacao
                 );
                 
                 dadosCalculados.pessoas.push({
                     id: pessoa.id,
                     nome: pessoa.nome,
                     tipo: pessoa.tipo,
-                    idadeAtual,
-                    valorInicial: pessoa.valor,
+                    idadeAtual: pessoa.idadeAtual,
+                    valorInicialBradesco: pessoa.valorBradesco,
+                    jaPassouAniv: pessoa.jaPassouAniv,
                     bradesco: projBradesco,
                     vumi: projVumi
                 });
             });
             
-            // Consolidar dados anuais (soma de TODAS as pessoas + info de reajustes)
+            if (dadosCalculados.pessoas.length === 0) return;
+            
             const maxAnos = Math.max(...dadosCalculados.pessoas.map(p => p.bradesco.length));
             
             for (let i = 0; i < maxAnos; i++) {
                 const ano = anoInicio + i;
-                
-                // Calcular totais do grupo
                 let totalBradescoMensal = 0;
                 let totalVumiMensal = 0;
                 let reajustesBradesco = [];
@@ -366,26 +1213,25 @@
                         totalBradescoMensal += p.bradesco[i].valorMensal;
                         totalVumiMensal += p.vumi[i].valorMensal;
                         
-                        // Coletar info de reajustes
                         if (p.bradesco[i].reajusteFaixa > 0 || p.bradesco[i].reajusteAnual > 0) {
                             reajustesBradesco.push({
                                 nome: p.nome,
                                 tipo: p.tipo,
                                 idade: p.bradesco[i].idade,
                                 reajusteFaixa: p.bradesco[i].reajusteFaixa,
-                                reajusteAnual: p.bradesco[i].reajusteAnual,
-                                faixa: p.bradesco[i].faixa
+                                reajusteAnual: p.bradesco[i].reajusteAnual
                             });
                         }
                         
-                        if (p.vumi[i].reajusteFaixa > 0 || p.vumi[i].reajusteAnual > 0) {
+                        if (p.vumi[i].reajusteFaixa !== 0 || p.vumi[i].reajusteAnual > 0 || p.vumi[i].transicao18) {
                             reajustesVumi.push({
                                 nome: p.nome,
                                 tipo: p.tipo,
                                 idade: p.vumi[i].idade,
                                 reajusteFaixa: p.vumi[i].reajusteFaixa,
                                 reajusteAnual: p.vumi[i].reajusteAnual,
-                                faixa: p.vumi[i].faixa
+                                isCrianca: p.vumi[i].isCrianca,
+                                transicao18: p.vumi[i].transicao18
                             });
                         }
                     }
@@ -393,7 +1239,6 @@
                 
                 const custoBradescoAnual = totalBradescoMensal * 12;
                 const custoVumiAnual = totalVumiMensal * 12;
-                
                 const acumBradesco = (dadosCalculados.anual[i-1]?.bradescoAcumulado || 0) + custoBradescoAnual;
                 const acumVumi = (dadosCalculados.anual[i-1]?.vumiAcumulado || 0) + custoVumiAnual;
                 
@@ -415,17 +1260,26 @@
             
             mostrarResultados();
         }
-        
-        function calcularProjecaoIndividual(operadora, valorInicial, idadeAtual, anosProj, anoInicio, reajusteAnualApolice, franquia) {
+
+        function calcularProjecaoBradesco(valorInicial, idadeAtual, anosProj, anoInicio, reajusteAnualApolice, jaPassouAnivInicial) {
             const dados = [];
-            let valorMensal = valorInicial;
-            const faixas = operadora === 'bradesco' ? tabelaBradesco : tabelaVumi[franquia];
-            let faixaAtual = encontrarFaixa(idadeAtual, faixas);
+            let valorMensal = valorInicial || 0;
+            if (valorMensal === 0) valorMensal = 100;
+            
+            const tabelaBradesco = [
+                {min: 0, max: 18, pct: 0.00}, {min: 19, max: 23, pct: 18.00},
+                {min: 24, max: 28, pct: 21.00}, {min: 29, max: 33, pct: 20.00},
+                {min: 34, max: 38, pct: 14.00}, {min: 39, max: 43, pct: 3.00},
+                {min: 44, max: 48, pct: 21.75}, {min: 49, max: 53, pct: 17.62},
+                {min: 54, max: 58, pct: 19.00}, {min: 59, max: 120, pct: 75.00}
+            ];
+            
+            let faixaAtual = tabelaBradesco.find(f => idadeAtual >= f.min && idadeAtual <= f.max) || tabelaBradesco[tabelaBradesco.length - 1];
             
             for (let i = 0; i <= anosProj; i++) {
                 const idade = idadeAtual + i;
                 const ano = anoInicio + i;
-                const novaFaixa = encontrarFaixa(idade, faixas);
+                const novaFaixa = tabelaBradesco.find(f => idade >= f.min && idade <= f.max) || tabelaBradesco[tabelaBradesco.length - 1];
                 
                 let reajusteFaixa = 0;
                 let reajusteAnual = 0;
@@ -434,21 +1288,23 @@
                 if (i === 0) {
                     evento = 'Início';
                 } else {
-                    // Verificar mudança de faixa etária
+                    // REAJUSTE POR FAIXA ETÁRIA - SÓ QUANDO MUDA DE FAIXA
                     if (novaFaixa.min !== faixaAtual.min) {
                         reajusteFaixa = novaFaixa.pct;
                         valorMensal = valorMensal * (1 + reajusteFaixa / 100);
-                        evento = operadora === 'bradesco' 
-                            ? `Faixa ${novaFaixa.min}-${novaFaixa.max} (+${reajusteFaixa}%)`
-                            : `Idade ${idade} (+${reajusteFaixa}%)`;
+                        evento = `Idade ${idade} (${reajusteFaixa > 0 ? '+' : ''}${reajusteFaixa}%)`;
                         faixaAtual = novaFaixa;
                     }
                     
-                    // Aplicar reajuste anual da apólice (SEMPRE, independente de mudança de faixa)
+                    // REAJUSTE ANUAL ADICIONAL (SE HABILITADO)
                     if (reajusteAnualApolice > 0) {
                         reajusteAnual = reajusteAnualApolice;
                         valorMensal = valorMensal * (1 + reajusteAnual / 100);
-                        evento += evento === '-' ? `Anual +${reajusteAnual}%` : ` + Anual +${reajusteAnual}%`;
+                        if (evento === '-') {
+                            evento = `Anual +${reajusteAnual}%`;
+                        } else {
+                            evento += ` + Anual +${reajusteAnual}%`;
+                        }
                     }
                 }
                 
@@ -458,94 +1314,163 @@
                     valorMensal,
                     reajusteFaixa,
                     reajusteAnual,
-                    faixa: operadora === 'bradesco' ? `${novaFaixa.min}-${novaFaixa.max}` : `${idade} anos`,
+                    faixa: `${novaFaixa.min}-${novaFaixa.max}`,
                     evento
                 });
             }
             
             return dados;
         }
+
+        function calcularProjecaoVumiDinamico(dataNasc, idadeAtual, anosProj, anoInicio, reajusteAnualApolice, franquia, plano, cotacao) {
+            const dados = [];
+            
+            for (let i = 0; i <= anosProj; i++) {
+                const ano = anoInicio + i;
+                const idade = calcularIdade(dataNasc, ano);
+                const isCrianca = idade < 18;
+                
+                // Calcular valor base para este ano
+                let valorAnualUSD;
+                if (isCrianca) {
+                    // Contar quantas crianças existem neste ano específico
+                    const numCriancas = contarCriancasNaApolice(ano);
+                    valorAnualUSD = getValorCrianca(numCriancas || 1, plano, franquia);
+                } else {
+                    valorAnualUSD = getValorVumiPorIdade(idade, plano, franquia);
+                }
+                
+                const valorMensal = (valorAnualUSD / 12) * cotacao;
+                
+                let reajusteFaixa = 0;
+                let reajusteAnual = 0;
+                let transicao18 = false;
+                let evento = '-';
+                
+                if (i === 0) {
+                    evento = isCrianca ? 'Início (Criança)' : 'Início';
+                } else {
+                    const idadeAnterior = calcularIdade(dataNasc, ano - 1);
+                    const foiCriancaAnterior = idadeAnterior < 18;
+                    
+                    // Verificar transição de criança para adulto
+                    if (foiCriancaAnterior && !isCrianca) {
+                        transicao18 = true;
+                        evento = '🎂 Completou 18 anos!';
+                    } else if (!isCrianca) {
+                        // REAJUSTE POR FAIXA ETÁRIA APENAS PARA ADULTOS
+                        const faixaAnterior = getFaixaEtaria(idadeAnterior, plano);
+                        const faixaAtual = getFaixaEtaria(idade, plano);
+                        
+                        if (faixaAtual !== faixaAnterior) {
+                            reajusteFaixa = getReajusteVumi(idade, plano, franquia);
+                            if (reajusteFaixa !== 0) {
+                                evento = `Idade ${idade} (${reajusteFaixa > 0 ? '+' : ''}${reajusteFaixa.toFixed(2)}%)`;
+                            }
+                        }
+                    } else {
+                        evento = 'Criança';
+                    }
+                    
+                    // REAJUSTE ANUAL ADICIONAL (SE HABILITADO) - Aplica para todos
+                    if (reajusteAnualApolice > 0) {
+                        reajusteAnual = reajusteAnualApolice;
+                        if (evento === '-' || evento === 'Criança') {
+                            evento = `Anual +${reajusteAnual}%`;
+                        } else {
+                            evento += ` + Anual +${reajusteAnual}%`;
+                        }
+                    }
+                }
+                
+                dados.push({
+                    ano,
+                    idade,
+                    valorMensal,
+                    reajusteFaixa,
+                    reajusteAnual,
+                    faixa: isCrianca ? '0-17' : getFaixaEtaria(idade, plano),
+                    evento,
+                    isCrianca,
+                    transicao18
+                });
+            }
+            
+            return dados;
+        }
+
         function mostrarResultados() {
             document.getElementById('resultados').style.display = 'block';
             
-            // Resumo geral
             const ultimoAno = dadosCalculados.anual[dadosCalculados.anual.length - 1];
+            const plano = document.getElementById('planoVumiSelecionado').value;
+            const franquia = document.getElementById('franquiaVumi').value;
+            
+            // Contar crianças no início
+            const anoInicio = parseInt(document.getElementById('anoInicio').value);
+            const numCriancasInicio = contarCriancasNaApolice(anoInicio);
+            
             const resumoHTML = `
                 <div class="summary-card"><h4>Total de Vidas</h4><div class="value">${dadosCalculados.pessoas.length}</div></div>
-                <div class="summary-card"><h4>BRADESCO - Custo Total</h4><div class="value">${formatarMoeda(ultimoAno.bradescoAcumulado)}</div></div>
-                <div class="summary-card"><h4>VUMI - Custo Total</h4><div class="value">${formatarMoeda(ultimoAno.vumiAcumulado)}</div></div>
+                ${numCriancasInicio > 0 ? `<div class="summary-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);"><h4>Crianças</h4><div class="value">${numCriancasInicio}</div></div>` : ''}
+                ${isAgro ? '<div class="summary-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);"><h4>Tipo</h4><div class="value">🌾 AGRO</div></div>' : ''}
+                <div class="summary-card"><h4>Plano VUMI</h4><div class="value">${plano}</div></div>
+                <div class="summary-card"><h4>Franquia</h4><div class="value">$${franquia}</div></div>
+                <div class="summary-card"><h4>BRADESCO Total</h4><div class="value">${formatarMoeda(ultimoAno.bradescoAcumulado)}</div></div>
+                <div class="summary-card"><h4>VUMI Total</h4><div class="value">${formatarMoeda(ultimoAno.vumiAcumulado)}</div></div>
                 <div class="summary-card"><h4>Economia com VUMI</h4><div class="value" style="color: ${ultimoAno.economiaAcumulada > 0 ? '#90EE90' : '#FFB6C1'}">${formatarMoeda(Math.abs(ultimoAno.economiaAcumulada))}</div></div>
-                <div class="summary-card"><h4>Anos Projetados</h4><div class="value">${dadosCalculados.anual.length}</div></div>
             `;
             document.getElementById('resumoGeral').innerHTML = resumoHTML;
             
-            // Tabela anual consolidada
             const tbody = document.getElementById('tbodyAnual');
             tbody.innerHTML = '';
             
             dadosCalculados.anual.forEach(ano => {
                 const tr = document.createElement('tr');
-                
-                // Formatar informações de reajuste
                 const infoReajusteBradesco = formatarReajustes(ano.reajustesBradesco, 'bradesco');
-                const infoReajusteVumi = formatarReajustes(ano.reajustesVumi, 'vumi');
-                
-                // Determinar classe de cor para diferença
+                const infoReajusteVumi = formatarReajustesVumi(ano.reajustesVumi);
                 const classeDiferenca = ano.diferencaMensal > 0 ? 'economia' : 'prejuizo';
-                const classeEconomia = ano.economiaAcumulada > 0 ? 'economia' : 'prejuizo';
                 
                 tr.innerHTML = `
                     <td><strong>${ano.ano}</strong></td>
-                    <td>${formatarMoeda(ano.bradescoMensal)}</td>
+                    <td class="col-mensal-bradesco">${formatarMoeda(ano.bradescoMensal)}</td>
                     <td>${infoReajusteBradesco}</td>
                     <td>${formatarMoeda(ano.bradescoAnual)}</td>
-                    <td>${formatarMoeda(ano.bradescoAcumulado)}</td>
-                    <td>${formatarMoeda(ano.vumiMensal)}</td>
+                    <td class="col-mensal-vumi">${formatarMoeda(ano.vumiMensal)}</td>
                     <td>${infoReajusteVumi}</td>
                     <td>${formatarMoeda(ano.vumiAnual)}</td>
-                    <td>${formatarMoeda(ano.vumiAcumulado)}</td>
                     <td class="${classeDiferenca}">${ano.diferencaMensal > 0 ? '+' : ''}${formatarMoeda(ano.diferencaMensal)}</td>
                     <td class="${classeDiferenca}">${ano.diferencaAnual > 0 ? '+' : ''}${formatarMoeda(ano.diferencaAnual)}</td>
-                    <td class="${classeEconomia}">${ano.economiaAcumulada > 0 ? 'Economia: ' : 'Prejuízo: '}${formatarMoeda(Math.abs(ano.economiaAcumulada))}</td>
                 `;
                 tbody.appendChild(tr);
             });
             
-            // Detalhes por pessoa
             let detalhesHTML = '';
             dadosCalculados.pessoas.forEach(p => {
+                const primeiraLinha = p.vumi[0];
+                const ehCriancaInicio = primeiraLinha.isCrianca;
+                
                 detalhesHTML += `
                     <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">
-                        <div style="background: #1e3c72; color: white; padding: 10px; font-weight: bold;">
-                            ${p.nome} (${p.tipo.toUpperCase()}) - Idade atual: ${p.idadeAtual} anos
+                        <div style="background: ${ehCriancaInicio ? '#ff6b6b' : '#1e3c72'}; color: white; padding: 10px; font-weight: bold;">
+                            ${ehCriancaInicio ? '👶' : ''} ${p.nome} (${p.tipo.toUpperCase()}) - Início: ${p.idadeAtual} anos
+                            ${p.jaPassouAniv ? '<span style="background: #ff6600; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 10px;">Aniv. já passou</span>' : ''}
+                            ${ehCriancaInicio ? '<span style="background: #fff; color: #ff6b6b; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 10px;">CRIANÇA</span>' : ''}
                         </div>
                         <div style="padding: 15px;">
                             <div class="grid-2">
                                 <div>
                                     <h4><span class="badge badge-bradesco">BRADESCO</span></h4>
-                                    <p>Valor Inicial: ${formatarMoeda(p.valorInicial)}</p>
+                                    <p>Valor Inicial: ${formatarMoeda(p.valorInicialBradesco)}</p>
                                     <p>Valor Final: ${formatarMoeda(p.bradesco[p.bradesco.length-1].valorMensal)}</p>
                                     <p>Custo Total: ${formatarMoeda(p.bradesco.reduce((acc, val) => acc + (val.valorMensal * 12), 0))}</p>
-                                    <details>
-                                        <summary>Ver evolução anual</summary>
-                                        <table style="font-size: 10px; margin-top: 10px;">
-                                            <tr><th>Ano</th><th>Idade</th><th>Valor</th><th>Reajustes</th></tr>
-                                            ${p.bradesco.map(b => `<tr><td>${b.ano}</td><td>${b.idade}</td><td>${formatarMoeda(b.valorMensal)}</td><td>${b.evento}</td></tr>`).join('')}
-                                        </table>
-                                    </details>
                                 </div>
                                 <div>
                                     <h4><span class="badge badge-vumi">VUMI</span></h4>
-                                    <p>Valor Inicial: ${formatarMoeda(p.valorInicial)}</p>
+                                    <p>Valor Inicial: ${formatarMoeda(p.vumi[0].valorMensal)}</p>
                                     <p>Valor Final: ${formatarMoeda(p.vumi[p.vumi.length-1].valorMensal)}</p>
                                     <p>Custo Total: ${formatarMoeda(p.vumi.reduce((acc, val) => acc + (val.valorMensal * 12), 0))}</p>
-                                    <details>
-                                        <summary>Ver evolução anual</summary>
-                                        <table style="font-size: 10px; margin-top: 10px;">
-                                            <tr><th>Ano</th><th>Idade</th><th>Valor</th><th>Reajustes</th></tr>
-                                            ${p.vumi.map(v => `<tr><td>${v.ano}</td><td>${v.idade}</td><td>${formatarMoeda(v.valorMensal)}</td><td>${v.evento}</td></tr>`).join('')}
-                                        </table>
-                                    </details>
+                                    ${p.vumi.some(v => v.transicao18) ? '<p style="color: #ff6b6b; font-weight: bold;">🎂 Fez 18 anos durante a projeção</p>' : ''}
                                 </div>
                             </div>
                         </div>
@@ -557,33 +1482,66 @@
             atualizarGraficos();
             document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
         }
-        
+
         function formatarReajustes(reajustes, operadora) {
             if (reajustes.length === 0) return '-';
-            
-            // Agrupar por tipo de reajuste
-            const porFaixa = reajustes.filter(r => r.reajusteFaixa > 0);
+            const porFaixa = reajustes.filter(r => r.reajusteFaixa !== 0);
             const anual = reajustes.filter(r => r.reajusteAnual > 0 && r.reajusteFaixa === 0);
             
             let html = '';
             
             if (porFaixa.length > 0) {
                 html += `<div class="${operadora === 'bradesco' ? 'faixa-alta' : 'faixa-media'}">`;
-                html += `📈 ${porFaixa.length} pessoa(s):<br>`;
-                porFaixa.forEach(r => {
-                    html += `• ${r.nome} (${r.idade}a): +${r.reajusteFaixa}%<br>`;
+                html += `📈 ${porFaixa.length} pessoa(s)<br>`;
+                porFaixa.slice(0, 2).forEach(r => {
+                    html += `• ${r.nome} (${r.idade}a): ${r.reajusteFaixa > 0 ? '+' : ''}${r.reajusteFaixa.toFixed(2)}%<br>`;
                 });
+                if (porFaixa.length > 2) html += `• ... e mais ${porFaixa.length - 2}`;
                 html += `</div>`;
             }
             
             if (anual.length > 0) {
-                html += `<div class="faixa-baixa">`;
-                html += `📅 ${anual.length} pessoa(s): Anual +${anual[0].reajusteAnual}%`;
-                html += `</div>`;
+                html += `<div class="faixa-baixa">📅 Anual: +${anual[0].reajusteAnual}%</div>`;
             }
             
             return html;
         }
+
+        function formatarReajustesVumi(reajustes) {
+            if (reajustes.length === 0) return '-';
+            
+            const criancas = reajustes.filter(r => r.isCrianca && !r.transicao18);
+            const transicoes = reajustes.filter(r => r.transicao18);
+            const porFaixa = reajustes.filter(r => r.reajusteFaixa !== 0 && !r.isCrianca);
+            const anual = reajustes.filter(r => r.reajusteAnual > 0 && r.reajusteFaixa === 0 && !r.isCrianca);
+            
+            let html = '';
+            
+            if (criancas.length > 0) {
+                html += `<div class="faixa-baixa">👶 ${criancas.length} criança(s)</div>`;
+            }
+            
+            if (transicoes.length > 0) {
+                html += `<div class="transicao-18">🎂 ${transicoes.length} fez 18 anos</div>`;
+            }
+            
+            if (porFaixa.length > 0) {
+                html += `<div class="faixa-media">`;
+                html += `📈 ${porFaixa.length} pessoa(s)<br>`;
+                porFaixa.slice(0, 2).forEach(r => {
+                    html += `• ${r.nome} (${r.idade}a): ${r.reajusteFaixa > 0 ? '+' : ''}${r.reajusteFaixa.toFixed(2)}%<br>`;
+                });
+                if (porFaixa.length > 2) html += `• ... e mais ${porFaixa.length - 2}`;
+                html += `</div>`;
+            }
+            
+            if (anual.length > 0) {
+                html += `<div class="faixa-baixa">📅 Anual: +${anual[0].reajusteAnual}%</div>`;
+            }
+            
+            return html;
+        }
+
         function atualizarGraficos() {
             const anos = dadosCalculados.anual.map(a => a.ano);
             
@@ -671,33 +1629,221 @@
                 }
             });
         }
-        
+
         function mostrarTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            
             event.target.classList.add('active');
             document.getElementById(tabId).classList.add('active');
         }
-        
+
+        // EXPORTAÇÕES
         function exportarCSV(tipo) {
             let csv = '';
-            
             if (tipo === 'anual') {
-                csv = 'Ano;BRADESCO Mensal;Reajustes Bradesco;BRADESCO Anual;BRADESCO Acumulado;VUMI Mensal;Reajustes VUMI;VUMI Anual;VUMI Acumulado;Diferenca Mensal;Diferenca Anual;Economia Acumulada\n';
+                csv = 'Ano;BRADESCO Mensal;Reajustes Bradesco;BRADESCO Anual;VUMI Mensal;Reajustes VUMI;VUMI Anual;Diferenca Mensal;Diferenca Anual\n';
                 dadosCalculados.anual.forEach(a => {
-                    const reajB = a.reajustesBradesco.map(r => `${r.nome}(${r.idade}a)+${r.reajusteFaixa}%`).join('; ');
-                    const reajV = a.reajustesVumi.map(r => `${r.nome}(${r.idade}a)+${r.reajusteFaixa}%`).join('; ');
-                    
-                    csv += `${a.ano};${a.bradescoMensal.toFixed(2).replace('.', ',')};"${reajB}";${a.bradescoAnual.toFixed(2).replace('.', ',')};${a.bradescoAcumulado.toFixed(2).replace('.', ',')};${a.vumiMensal.toFixed(2).replace('.', ',')};"${reajV}";${a.vumiAnual.toFixed(2).replace('.', ',')};${a.vumiAcumulado.toFixed(2).replace('.', ',')};${a.diferencaMensal.toFixed(2).replace('.', ',')};${a.diferencaAnual.toFixed(2).replace('.', ',')};${a.economiaAcumulada.toFixed(2).replace('.', ',')}\n`;
+                    const reajB = a.reajustesBradesco.map(r => `${r.nome}(${r.idade}a)${r.reajusteFaixa > 0 ? '+' : ''}${r.reajusteFaixa.toFixed(2)}%`).join('; ');
+                    const reajV = a.reajustesVumi.map(r => {
+                        let txt = `${r.nome}(${r.idade}a)`;
+                        if (r.isCrianca) txt += '[CRIANÇA]';
+                        if (r.transicao18) txt += '[18 ANOS]';
+                        if (r.reajusteFaixa !== 0) txt += `${r.reajusteFaixa > 0 ? '+' : ''}${r.reajusteFaixa.toFixed(2)}%`;
+                        return txt;
+                    }).join('; ');
+                    csv += `${a.ano};${a.bradescoMensal.toFixed(2).replace('.', ',')};"${reajB}";${a.bradescoAnual.toFixed(2).replace('.', ',')};${a.vumiMensal.toFixed(2).replace('.', ',')};"${reajV}";${a.vumiAnual.toFixed(2).replace('.', ',')};${a.diferencaMensal.toFixed(2).replace('.', ',')};${a.diferencaAnual.toFixed(2).replace('.', ',')}\n`;
                 });
             }
-            
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `projecao_multi_vidas_${new Date().getFullYear()}.csv`;
+            link.download = `projecao_vumi_${new Date().getFullYear()}.csv`;
             link.click();
+        }
+
+        function exportarExcel(tipo) {
+            let html = '<table border="1">';
+            html += '<tr style="background-color: #1e3c72; color: white;">';
+            html += '<th>Ano</th><th>BRADESCO Mensal</th><th>Reajustes Bradesco</th><th>BRADESCO Anual</th>';
+            html += '<th>VUMI Mensal</th><th>Reajustes VUMI</th><th>VUMI Anual</th>';
+            html += '<th>Diferença Mensal</th><th>Diferença Anual</th>';
+            html += '</tr>';
+            
+            dadosCalculados.anual.forEach(a => {
+                const reajB = a.reajustesBradesco.map(r => `${r.nome}(${r.idade}a)`).join(', ');
+                const reajV = a.reajustesVumi.map(r => {
+                    let txt = `${r.nome}(${r.idade}a)`;
+                    if (r.isCrianca) txt += '[CRIANÇA]';
+                    if (r.transicao18) txt += '[18 ANOS]';
+                    return txt;
+                }).join(', ');
+                
+                html += '<tr>';
+                html += `<td>${a.ano}</td>`;
+                html += `<td>${a.bradescoMensal.toFixed(2)}</td>`;
+                html += `<td>${reajB}</td>`;
+                html += `<td>${a.bradescoAnual.toFixed(2)}</td>`;
+                html += `<td>${a.vumiMensal.toFixed(2)}</td>`;
+                html += `<td>${reajV}</td>`;
+                html += `<td>${a.vumiAnual.toFixed(2)}</td>`;
+                html += `<td>${a.diferencaMensal.toFixed(2)}</td>`;
+                html += `<td>${a.diferencaAnual.toFixed(2)}</td>`;
+                html += '</tr>';
+            });
+            
+            html += '</table>';
+            
+            const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `projecao_vumi_${new Date().getFullYear()}.xls`;
+            link.click();
+        }
+
+        function exportarPDF(tipo) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            
+            doc.setFontSize(16);
+            doc.text('Projeção Anual Consolidada - VUMI vs Bradesco', 15, 20);
+            
+            doc.setFontSize(10);
+            const plano = document.getElementById('planoVumiSelecionado').value;
+            const franquia = document.getElementById('franquiaVumi').value;
+            const anoInicio = parseInt(document.getElementById('anoInicio').value);
+            const numCriancas = contarCriancasNaApolice(anoInicio);
+            const temCriancas = numCriancas > 0 ? ` | Crianças: ${numCriancas}` : '';
+            doc.text(`Plano: ${plano} | Franquia: $${franquia}${temCriancas} | Data: ${new Date().toLocaleDateString()}`, 15, 30);
+            
+            const headers = [['Ano', 'BRADESCO Mensal', 'VUMI Mensal', 'BRADESCO Anual', 'VUMI Anual', 'Diferença Mensal', 'Diferença Anual']];
+            const data = dadosCalculados.anual.map(a => [
+                a.ano.toString(),
+                formatarMoeda(a.bradescoMensal),
+                formatarMoeda(a.vumiMensal),
+                formatarMoeda(a.bradescoAnual),
+                formatarMoeda(a.vumiAnual),
+                (a.diferencaMensal > 0 ? '+' : '') + formatarMoeda(a.diferencaMensal),
+                (a.diferencaAnual > 0 ? '+' : '') + formatarMoeda(a.diferencaAnual)
+            ]);
+            
+            doc.autoTable({
+                head: headers,
+                body: data,
+                startY: 40,
+                styles: { fontSize: 8, cellPadding: 2 },
+                headStyles: { fillColor: [30, 60, 114], textColor: 255 },
+                alternateRowStyles: { fillColor: [240, 240, 240] }
+            });
+            
+            const ultimo = dadosCalculados.anual[dadosCalculados.anual.length - 1];
+            const finalY = doc.lastAutoTable.finalY + 10;
+            doc.setFontSize(12);
+            doc.text('Resumo:', 15, finalY);
+            doc.setFontSize(10);
+            doc.text(`Total BRADESCO: ${formatarMoeda(ultimo.bradescoAcumulado)}`, 15, finalY + 7);
+            doc.text(`Total VUMI: ${formatarMoeda(ultimo.vumiAcumulado)}`, 15, finalY + 14);
+            doc.text(`Economia: ${formatarMoeda(Math.abs(ultimo.economiaAcumulada))}`, 15, finalY + 21);
+            
+            doc.save(`projecao_vumi_${new Date().getFullYear()}.pdf`);
+        }
+
+        // MODAL VUMI
+        function abrirModalTabelaVumi() {
+            const plano = document.getElementById('planoVumiSelecionado').value;
+            const franquia = parseInt(document.getElementById('franquiaVumi').value) || 2000;
+            const cotacao = parseFloat(document.getElementById('cotacaoDolar').value) || 5;
+            const anoInicio = parseInt(document.getElementById('anoInicio').value);
+            
+            document.getElementById('nomePlanoModal').textContent = plano;
+            document.getElementById('franquiaModal').textContent = `$${franquia}`;
+            document.getElementById('cotacaoModal').textContent = cotacao.toFixed(2);
+            document.getElementById('badgeAgro').style.display = isAgro ? 'inline-block' : 'none';
+            
+            const tbody = document.getElementById('tbodyPrecosVumi');
+            tbody.innerHTML = '';
+            
+            // Verificar se há crianças na apólice
+            const numCriancas = contarCriancasNaApolice(anoInicio);
+            
+            let tabela = TABELAS_VUMI_ADULTOS[plano][franquia];
+            let multiplicador = 1;
+            
+            if (isAgro && (franquia === 500 || franquia === 1000)) {
+                multiplicador = AGRO_MULTIPLICADORES[franquia];
+                tabela = TABELAS_VUMI_ADULTOS[plano][2000];
+            }
+            
+            // Adicionar seção de crianças primeiro se houver
+            if (numCriancas > 0) {
+                const trCrianca = document.createElement('tr');
+                trCrianca.style.backgroundColor = '#fff5f5';
+                trCrianca.innerHTML = `<td colspan="4" style="font-weight: bold; color: #d32f2f; padding: 10px;">👶 TARIFAS PARA CRIANÇAS (0-17 anos) - ${numCriancas} criança(s) na apólice</td>`;
+                tbody.appendChild(trCrianca);
+                
+                ['1', '2', '3+'].forEach(qtd => {
+                    const valorAnualBase = TABELAS_VUMI_CRIANCAS[plano][franquia][qtd];
+                    const valorAnual = valorAnualBase * multiplicador;
+                    const valorMensalUSD = valorAnual / 12;
+                    const valorMensalRS = valorMensalUSD * cotacao;
+                    
+                    const tr = document.createElement('tr');
+                    tr.style.backgroundColor = '#fff0f0';
+                    const destaque = (numCriancas === 1 && qtd === '1') || (numCriancas === 2 && qtd === '2') || (numCriancas >= 3 && qtd === '3+') ? 'style="font-weight: bold; background-color: #ffe0e0;"' : '';
+                    tr.innerHTML = `
+                        <td ${destaque}><strong>${qtd} criança(s)</strong> ${(numCriancas === 1 && qtd === '1') || (numCriancas === 2 && qtd === '2') || (numCriancas >= 3 && qtd === '3+') ? '← ATUAL' : ''}</td>
+                        <td $destaque}>$${valorAnual.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                        <td ${destaque}>$${valorMensalUSD.toFixed(2)}</td>
+                        <td ${destaque}>${formatarMoeda(valorMensalRS)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                const trSeparador = document.createElement('tr');
+                trSeparador.innerHTML = `<td colspan="4" style="background-color: #e0e0e0; padding: 5px;"></td>`;
+                tbody.appendChild(trSeparador);
+                
+                const trAdulto = document.createElement('tr');
+                trAdulto.innerHTML = `<td colspan="4" style="font-weight: bold; color: #1e3c72; padding: 10px;">👤 TARIFAS PARA ADULTOS (18+ anos)</td>`;
+                tbody.appendChild(trAdulto);
+            }
+            
+            // Ordenar faixas por idade
+            const faixasOrdenadas = Object.keys(tabela).sort((a, b) => {
+                const getNumero = (str) => {
+                    const match = str.match(/(\d+)/);
+                    return match ? parseInt(match[1]) : 0;
+                };
+                return getNumero(a) - getNumero(b);
+            });
+            
+            faixasOrdenadas.forEach(faixa => {
+                const valorAnualBase = tabela[faixa];
+                const valorAnual = valorAnualBase * multiplicador;
+                const valorMensalUSD = valorAnual / 12;
+                const valorMensalRS = valorMensalUSD * cotacao;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${faixa} anos</strong></td>
+                    <td>$${valorAnual.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    <td>$${valorMensalUSD.toFixed(2)}</td>
+                    <td>${formatarMoeda(valorMensalRS)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('modalTabelaVumi').style.display = 'block';
+        }
+
+        function fecharModalTabelaVumi() {
+            document.getElementById('modalTabelaVumi').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalTabelaVumi');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
         }
     </script>
 </body>

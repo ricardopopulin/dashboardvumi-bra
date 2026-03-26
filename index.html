@@ -69,21 +69,17 @@
         .faixa-baixa { color: #388e3c; font-weight: bold; }
         .economia { color: #388e3c; font-weight: bold; }
         .prejuizo { color: #d32f2f; font-weight: bold; }
-        
         .col-mensal-bradesco { background-color: #fff3e0 !important; font-weight: bold; color: #ff6600; font-size: 12px; }
         .col-mensal-vumi { background-color: #e3f2fd !important; font-weight: bold; color: #00a8e8; font-size: 12px; }
         th.col-mensal-bradesco { background-color: #ff6600 !important; color: white; }
         th.col-mensal-vumi { background-color: #00a8e8 !important; color: white; }
-        
         .aniversario-info { background: #fff8e1; padding: 8px; border-radius: 6px; margin-top: 5px; font-size: 11px; border-left: 3px solid #ffc107; }
         .aniversario-passou { color: #d32f2f; }
         .aniversario-futuro { color: #388e3c; }
-        
         .plano-selector { background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #00a8e8; }
         .plano-option { display: inline-block; margin: 5px; padding: 8px 15px; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; transition: all 0.3s; }
         .plano-option:hover { border-color: #00a8e8; }
         .plano-option.selected { background: #00a8e8; color: white; border-color: #00a8e8; }
-        
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
         .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border-radius: 15px; width: 95%; max-width: 1000px; max-height: 80vh; overflow-y: auto; }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
@@ -91,7 +87,6 @@
         .tabela-precos { width: 100%; font-size: 11px; margin-top: 10px; }
         .tabela-precos th { background: #00a8e8; position: sticky; top: 0; }
         .tabela-precos td { padding: 4px; }
-        
         .planos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
         @media (max-width: 768px) { .planos-grid { grid-template-columns: 1fr 1fr; } }
         .plano-card { background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.3s; }
@@ -99,25 +94,38 @@
         .plano-card.selected { border-color: #00a8e8; background: #e3f2fd; }
         .plano-card h4 { color: #00a8e8; margin-bottom: 5px; font-size: 14px; }
         .plano-card p { font-size: 11px; color: #666; margin: 0; }
-
         .agro-section { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .agro-section h3 { color: #155724; margin-bottom: 10px; }
         .agro-toggle { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .agro-toggle input[type="checkbox"] { width: 20px; height: 20px; accent-color: #28a745; }
-
         .transicao-18 { background: #fff3e0; padding: 4px 8px; border-radius: 4px; font-size: 10px; color: #e65100; font-weight: bold; }
+        .descontos-section { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #6c757d; border-radius: 10px; padding: 15px; margin-top: 15px; }
+        .descontos-section h3 { color: #495057; margin-bottom: 15px; font-size: 1.1em; }
+        .desconto-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        @media (max-width: 1200px) { .desconto-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .desconto-grid { grid-template-columns: 1fr; } }
+        .desconto-box { background: white; padding: 12px; border-radius: 8px; border: 2px solid #dee2e6; }
+        .desconto-box h4 { color: #495057; margin-bottom: 10px; font-size: 13px; }
+        .desconto-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+        .btn-desconto { padding: 6px 12px; border: 2px solid #dee2e6; background: white; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.3s; }
+        .btn-desconto:hover { border-color: #28a745; color: #28a745; }
+        .btn-desconto.selected { background: #28a745; color: white; border-color: #28a745; }
+        .btn-desconto.incentivo:hover { border-color: #007bff; color: #007bff; }
+        .btn-desconto.incentivo.selected { background: #007bff; color: white; border-color: #007bff; }
+        .btn-desconto.medico:hover { border-color: #6f42c1; color: #6f42c1; }
+        .btn-desconto.medico.selected { background: #6f42c1; color: white; border-color: #6f42c1; }
+        .desconto-info { font-size: 11px; color: #6c757d; margin-top: 8px; font-style: italic; }
+        .alerta-incentivo { background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 8px; border-radius: 6px; font-size: 11px; margin-top: 8px; }
+        .debug-info { background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; border-radius: 6px; font-size: 10px; color: #6c757d; margin-top: 10px; font-family: monospace; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📊 Dashboard Projeção Seguro Saúde - Multi-Vidas</h1>
         <p class="subtitle">Bradesco vs VUMI | Projeção até 80 anos | Clientes Agro e Tradicionais</p>
-        
         <div class="grid-2">
             <div class="card">
                 <h2>⚙️ Configurações Gerais da Apólice</h2>
-                
-                <!-- SEÇÃO AGRO -->
                 <div class="agro-section">
                     <div class="agro-toggle">
                         <input type="checkbox" id="isClienteAgro" onchange="toggleAgroMode()">
@@ -129,16 +137,14 @@
                         Ao marcar, habilita franquias especiais de $500 e $1.000 com acréscimo de 23,8% e 15,5% respectivamente sobre o valor da franquia de $2.000.
                     </p>
                 </div>
-
                 <div class="form-group">
                     <label>Ano de Início da Projeção</label>
-                    <input type="number" id="anoInicio" value="2024">
+                    <input type="number" id="anoInicio" value="2026">
                 </div>
                 <div class="form-group">
                     <label>Idade Limite de Projeção</label>
                     <input type="number" id="idadeLimite" value="80" max="80">
                 </div>
-                
                 <div class="form-group">
                     <label>🏥 Plano VUMI</label>
                     <div class="planos-grid">
@@ -161,7 +167,6 @@
                     </div>
                     <input type="hidden" id="planoVumiSelecionado" value="DIRECT">
                 </div>
-
                 <div class="form-group">
                     <label>Franquia VUMI (Deductible)</label>
                     <select id="franquiaVumi" onchange="atualizarTodosValoresVumi()">
@@ -172,7 +177,6 @@
                         <option value="50000">$50,000</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label>📅 Data de Aniversário da Apólice Atual (Mês/Dia)</label>
                     <input type="date" id="dataAniversarioApolice" onchange="atualizarInfoAniversario()">
@@ -183,7 +187,6 @@
                     <input type="number" id="cotacaoDolar" value="5.00" step="0.01" onchange="atualizarTodosValoresVumi()">
                 </div>
             </div>
-            
             <div class="card">
                 <h2>📈 Reajustes Anuais por Operadora</h2>
                 <div class="grid-reajustes">
@@ -206,12 +209,56 @@
                         </div>
                         <div class="form-group">
                             <label>Percentual Anual (%)</label>
-                            <input type="number" id="pctReajusteVumi" value="0" step="0.01" disabled>
+                            <input type="number" id="pctReajusteVumi" value="7" step="0.01" disabled>
                         </div>
                     </div>
                 </div>
-                <div class="info-box">
-                    💡 <strong>Importante:</strong> Os reajustes por faixa etária são aplicados automaticamente conforme a tabela do plano selecionado. O reajuste anual acima é adicional.
+                <div class="descontos-section">
+                    <h3>💰 Descontos VUMI (sobre valores da tabela)</h3>
+                    <div class="desconto-grid">
+                        <div class="desconto-box">
+                            <h4>🎯 Incentivo (Primeira Apólice)</h4>
+                            <div class="desconto-btns" id="botoesIncentivo">
+                                <button class="btn-desconto incentivo selected" onclick="selecionarDescontoIncentivo(0)" id="desc-incentivo-0">0%</button>
+                                <button class="btn-desconto incentivo" onclick="selecionarDescontoIncentivo(5)" id="desc-incentivo-5">5%</button>
+                                <button class="btn-desconto incentivo" onclick="selecionarDescontoIncentivo(10)" id="desc-incentivo-10">10%</button>
+                                <button class="btn-desconto incentivo" onclick="selecionarDescontoIncentivo(15)" id="desc-incentivo-15">15%</button>
+                                <button class="btn-desconto incentivo" onclick="selecionarDescontoIncentivo(20)" id="desc-incentivo-20">20%</button>
+                            </div>
+                            <input type="hidden" id="descontoIncentivo" value="0">
+                            <div class="alerta-incentivo">
+                                ⚠️ <strong>SÓ NO 1º ANO</strong>: Aplicado apenas no ano de entrada.
+                            </div>
+                        </div>
+                        <div class="desconto-box">
+                            <h4>🌾 Desconto Agro (Todos os anos)</h4>
+                            <div class="desconto-btns" id="botoesAgro">
+                                <button class="btn-desconto selected" onclick="selecionarDescontoAgro(0)" id="desc-agro-0">0%</button>
+                                <button class="btn-desconto" onclick="selecionarDescontoAgro(10)" id="desc-agro-10">10%</button>
+                            </div>
+                            <input type="hidden" id="descontoAgro" value="0">
+                            <div class="desconto-info">Aplica-se todos os anos</div>
+                        </div>
+                        <div class="desconto-box">
+                            <h4>👨‍⚕️ Desconto Médico (Todos os anos)</h4>
+                            <div class="desconto-btns" id="botoesMedico">
+                                <button class="btn-desconto medico selected" onclick="selecionarDescontoMedico(0)" id="desc-medico-0">0%</button>
+                                <button class="btn-desconto medico" onclick="selecionarDescontoMedico(20)" id="desc-medico-20">20%</button>
+                            </div>
+                            <input type="hidden" id="descontoMedico" value="0">
+                            <div class="desconto-info">Aplica-se todos os anos</div>
+                        </div>
+                    </div>
+                    <div id="infoDescontos" style="margin-top: 10px; padding: 8px; background: #d4edda; border-radius: 6px; font-size: 12px; color: #155724; display: none;">
+                        <strong>Desconto 1º Ano: <span id="descontoTotal">0%</span></strong> (Incentivo + Agro + Médico)<br>
+                        <small>Desconto Anos Seguintes: <span id="descontoSeguintes">0%</span> (Agro + Médico)</small>
+                    </div>
+                </div>
+                <div class="info-box" style="margin-top: 15px;">
+                    💡 <strong>Regras de Cálculo VUMI:</strong><br>
+                    • <strong>1º Ano:</strong> Valor tabela - descontos (sem reajuste anual)<br>
+                    • <strong>Mudança de faixa:</strong> Valor acumulado + diferença % da nova faixa + reajuste anual<br>
+                    • <strong>Sem mudança:</strong> Valor anterior + reajuste anual (se houver)
                 </div>
                 <div style="margin-top: 15px;">
                     <button class="btn btn-primary" onclick="abrirModalTabelaVumi()">📋 Visualizar Tabela de Preços VUMI</button>
@@ -219,32 +266,28 @@
                 </div>
             </div>
         </div>
-        
         <div class="card">
             <h2>👥 Vidas da Apólice (Adicione todas as pessoas)</h2>
             <div class="info-box">
                 Adicione cada pessoa da apólice com nome, data de nascimento e valor Bradesco. <strong>O sistema calcula o valor VUMI automaticamente</strong> baseado na idade.
                 <br><br>
-                <strong>👶 Crianças (0-17 anos):</strong> O sistema identifica automaticamente e aplica a tarifa especial VUMI para crianças. Quando a criança completa 18 anos, ela automaticamente passa a usar a tabela de adultos com os reajustes por faixa etária.
+                <strong>👶 Crianças (0-17 anos):</strong> O sistema identifica automaticamente e aplica a tarifa especial VUMI para crianças. Quando a criança completa 18 anos, ela automaticamente passa a usar a tabela de adultos.
             </div>
             <div id="pessoasContainer"></div>
             <button class="btn btn-success" onclick="adicionarPessoa()" style="margin-top: 10px;">+ Adicionar Pessoa</button>
             <button class="btn btn-primary" onclick="calcularTudo()" style="margin-top: 10px; margin-left: 10px;">🚀 Calcular Projeção Completa</button>
         </div>
-        
         <div id="resultados" style="display: none;">
             <div class="card" style="margin-top: 20px;">
                 <h2>💰 Resumo Geral da Apólice</h2>
                 <div class="summary-cards" id="resumoGeral"></div>
             </div>
-            
             <div class="card" style="margin-top: 20px;">
                 <div class="tabs">
                     <button class="tab active" onclick="mostrarTab('tab-anual')">📅 Projeção Anual Detalhada</button>
                     <button class="tab" onclick="mostrarTab('tab-pessoas')">👤 Por Pessoa</button>
                     <button class="tab" onclick="mostrarTab('tab-graficos')">📊 Gráficos Comparativos</button>
                 </div>
-                
                 <div id="tab-anual" class="tab-content active">
                     <h3>Projeção Anual Consolidada - Todas as Vidas</h3>
                     <div class="comparativo-table">
@@ -271,12 +314,10 @@
                         <button class="btn btn-danger" onclick="exportarPDF('anual')">📕 Exportar PDF</button>
                     </div>
                 </div>
-                
                 <div id="tab-pessoas" class="tab-content">
                     <h3>Detalhamento Individual por Pessoa</h3>
                     <div id="detalhesPessoas"></div>
                 </div>
-                
                 <div id="tab-graficos" class="tab-content">
                     <h3>Comparativo Visual</h3>
                     <div class="grid-2">
@@ -289,21 +330,31 @@
                             <div class="chart-container"><canvas id="graficoAcumulado"></canvas></div>
                         </div>
                     </div>
+                    <div class="grid-2" style="margin-top: 20px;">
+                        <div>
+                            <h4>Diferença Mensal (Economia/Prejuízo)</h4>
+                            <div class="chart-container"><canvas id="graficoDiferenca"></canvas></div>
+                        </div>
+                        <div>
+                            <h4>Comparativo de Reajustes</h4>
+                            <div class="chart-container"><canvas id="graficoReajustes"></canvas></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Modal para Tabela VUMI -->
     <div id="modalTabelaVumi" class="modal">
         <div class="modal-content">
             <span class="close" onclick="fecharModalTabelaVumi()">&times;</span>
             <h2>📋 Tabela de Preços VUMI - <span id="nomePlanoModal">DIRECT</span></h2>
             <div style="margin-bottom: 15px;">
                 <span id="badgeAgro" style="display: none;" class="badge badge-agro">CLIENTE AGRO</span>
+                <span id="badgeDesconto" style="display: none;" class="badge badge-vumi">DESCONTO APLICADO</span>
                 <p style="margin-top: 10px;">
                     Franquia: <span id="franquiaModal">$2,000</span> | 
                     Cotação: R$ <span id="cotacaoModal">5.00</span>
+                    <span id="infoDescontoModal" style="display: none;"> | Desconto: <span id="valorDescontoModal">0%</span></span>
                 </p>
             </div>
             <div style="overflow-x: auto;">
@@ -322,13 +373,8 @@
             <button class="btn btn-success" onclick="fecharModalTabelaVumi()" style="margin-top: 15px;">✅ Fechar</button>
         </div>
     </div>
-
     <script>
-        // ============================================================
-        // TABELAS VUMI 2025 - VALORES ANUAIS EM USD (dos PDFs)
-        // ============================================================
-        
-        // TABELAS PARA ADULTOS (18+ anos)
+        // [Todas as tabelas permanecem iguais...]
         const TABELAS_VUMI_ADULTOS = {
             'DIRECT': {
                 2000: {
@@ -470,7 +516,6 @@
             }
         };
 
-        // TABELAS PARA CRIANÇAS (0-17 anos) - VALORES ANUAIS EM USD POR CRIANÇA
         const TABELAS_VUMI_CRIANCAS = {
             'DIRECT': {
                 2000: { '1': 1118, '2': 1780, '3+': 2610 },
@@ -502,10 +547,6 @@
             }
         };
 
-        // ============================================================
-        // TABELAS DE REAJUSTE POR FAIXA ETÁRIA
-        // ============================================================
-        
         const REAJUSTES_VUMI = {
             'DIRECT': {
                 2000: [
@@ -707,22 +748,95 @@
             }
         };
 
-        // Multiplicadores para franquias AGRO
         const AGRO_MULTIPLICADORES = {
-            500: 1.238,    // +23.8% sobre $2,000
-            1000: 1.155    // +15.5% sobre $2,000
+            500: 1.238,
+            1000: 1.155
         };
 
         let pessoas = [];
         let contadorPessoas = 0;
         let graficoMensal = null;
         let graficoAcumulado = null;
+        let graficoDiferenca = null;
+        let graficoReajustes = null;
         let dadosCalculados = { anual: [], pessoas: [] };
         let isAgro = false;
+        let descontoIncentivo = 0;
+        let descontoAgro = 0;
+        let descontoMedico = 0;
 
         document.getElementById('reajusteAnualVumi').addEventListener('change', function() {
             document.getElementById('pctReajusteVumi').disabled = !this.checked;
         });
+
+        function selecionarDescontoIncentivo(valor) {
+            descontoIncentivo = valor;
+            document.getElementById('descontoIncentivo').value = valor;
+            document.querySelectorAll('#botoesIncentivo .btn-desconto').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.getElementById(`desc-incentivo-${valor}`).classList.add('selected');
+            atualizarInfoDescontos();
+            atualizarTodosValoresVumi();
+        }
+        
+        function selecionarDescontoAgro(valor) {
+            descontoAgro = valor;
+            document.getElementById('descontoAgro').value = valor;
+            document.querySelectorAll('#botoesAgro .btn-desconto').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.getElementById(`desc-agro-${valor}`).classList.add('selected');
+            atualizarInfoDescontos();
+            atualizarTodosValoresVumi();
+        }
+        
+        function selecionarDescontoMedico(valor) {
+            descontoMedico = valor;
+            document.getElementById('descontoMedico').value = valor;
+            document.querySelectorAll('#botoesMedico .btn-desconto').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.getElementById(`desc-medico-${valor}`).classList.add('selected');
+            atualizarInfoDescontos();
+            atualizarTodosValoresVumi();
+        }
+        
+        function atualizarInfoDescontos() {
+            const totalAno1 = descontoIncentivo + descontoAgro + descontoMedico;
+            const totalSeguintes = descontoAgro + descontoMedico;
+            const infoDiv = document.getElementById('infoDescontos');
+            
+            if (totalAno1 > 0) {
+                infoDiv.style.display = 'block';
+                document.getElementById('descontoTotal').textContent = `${totalAno1}%`;
+                document.getElementById('descontoSeguintes').textContent = `${totalSeguintes}%`;
+            } else {
+                infoDiv.style.display = 'none';
+            }
+        }
+        
+        // CORREÇÃO: Função para aplicar descontos com base no ano
+        function aplicarDescontos(valorOriginal, ano = 0) {
+            let valor = valorOriginal;
+            
+            // Aplica desconto de incentivo apenas no primeiro ano (ano === 0)
+            if (ano === 0 && descontoIncentivo > 0) {
+                valor = valor * (1 - descontoIncentivo / 100);
+            }
+            
+            // Aplica desconto agro em todos os anos
+            if (descontoAgro > 0) {
+                valor = valor * (1 - descontoAgro / 100);
+            }
+            
+            // Aplica desconto médico em todos os anos
+            if (descontoMedico > 0) {
+                valor = valor * (1 - descontoMedico / 100);
+            }
+            
+            return valor;
+        }
 
         function toggleAgroMode() {
             isAgro = document.getElementById('isClienteAgro').checked;
@@ -752,6 +866,10 @@
                 document.querySelectorAll('.pessoa-item').forEach(item => {
                     item.classList.remove('agro');
                 });
+                
+                if (descontoAgro > 0) {
+                    selecionarDescontoAgro(0);
+                }
             }
             
             atualizarTodosValoresVumi();
@@ -782,13 +900,27 @@
             const jaPassou = hoje > anivEsteAno;
             
             infoDiv.style.display = 'block';
-            infoDiv.innerHTML = `
-                <strong>Aniversário da Apólice:</strong> ${diaAniv}/${mesAniv + 1}<br>
-                <span class="${jaPassou ? 'aniversario-passou' : 'aniversario-futuro'}">
-                    ${jaPassou ? '⚠️ JÁ PASSOU este ano - Reajustes já aplicados' : '✅ AINDA VAI ACONTECER este ano - Reajustes ainda não aplicados'}
-                </span><br>
-                <small>Os cálculos considerarão automaticamente esta informação.</small>
-            `;
+            
+            let mensagem = `<strong>Aniversário da Apólice:</strong> ${diaAniv}/${mesAniv + 1}<br>`;
+            
+            if (jaPassou) {
+                mensagem += `<span class="aniversario-passou">⚠️ JÁ PASSOU este ano - Reajustes já aplicados no valor atual</span>`;
+            } else {
+                mensagem += `<span class="aniversario-futuro">✅ AINDA VAI ACONTECER este ano - Reajuste será aplicado no cálculo do primeiro ano</span>`;
+            }
+            
+            infoDiv.innerHTML = mensagem;
+        }
+        
+        function deveAplicarReajusteAniversarioApolice() {
+            const dataAniv = document.getElementById('dataAniversarioApolice').value;
+            if (!dataAniv) return false;
+            
+            const hoje = new Date();
+            const aniv = new Date(dataAniv);
+            const anivEsteAno = new Date(hoje.getFullYear(), aniv.getMonth(), aniv.getDate());
+            
+            return hoje <= anivEsteAno;
         }
 
         function getFaixaEtaria(idade, plano) {
@@ -838,18 +970,23 @@
 
         function getReajusteVumi(idade, plano, franquia) {
             const faixa = getFaixaEtaria(idade, plano);
-            const tabela = REAJUSTES_VUMI[plano][franquia];
+            
+            let franquiaReajuste = franquia;
+            if (isAgro && (franquia == 500 || franquia == 1000)) {
+                franquiaReajuste = 2000;
+            }
+            
+            const tabela = REAJUSTES_VUMI[plano][franquiaReajuste];
             if (!tabela) return 0;
             
             const reajuste = tabela.find(r => r.faixa === faixa);
             return reajuste ? reajuste.pct : 0;
         }
 
-        function getValorVumiPorIdade(idade, plano, franquia) {
-            // Se for criança (0-17 anos), retornar null (será calculado separadamente)
+        // CORREÇÃO: Retorna valor BASE da tabela (sem descontos) para cálculo de reajuste
+        function getValorBaseVumiPorIdade(idade, plano, franquia) {
             if (idade < 18) return null;
             
-            // Adultos (18+ anos) - usar tabela normal
             let franquiaBase = franquia;
             let multiplicador = 1;
             
@@ -866,6 +1003,11 @@
             return valorBase * multiplicador;
         }
 
+        function getValorVumiPorIdade(idade, plano, franquia, ano = 0) {
+            const valorBase = getValorBaseVumiPorIdade(idade, plano, franquia);
+            return aplicarDescontos(valorBase, ano);
+        }
+
         function contarCriancasNaApolice(anoReferencia) {
             let count = 0;
             pessoas.forEach(p => {
@@ -877,7 +1019,7 @@
             return count;
         }
 
-        function getValorCrianca(quantidadeCriancas, plano, franquia) {
+        function getValorBaseCrianca(quantidadeCriancas, plano, franquia) {
             let franquiaBase = franquia;
             let multiplicador = 1;
             
@@ -895,6 +1037,11 @@
             
             const valorBase = tabela[qtdChave] || tabela['1'] || 0;
             return valorBase * multiplicador;
+        }
+
+        function getValorCrianca(quantidadeCriancas, plano, franquia, ano = 0) {
+            const valorBase = getValorBaseCrianca(quantidadeCriancas, plano, franquia);
+            return aplicarDescontos(valorBase, ano);
         }
 
         function adicionarPessoa() {
@@ -969,7 +1116,6 @@
             const franquia = parseInt(document.getElementById('franquiaVumi').value) || 2000;
             const cotacao = parseFloat(document.getElementById('cotacaoDolar').value) || 5;
             
-            // Verificar se é criança (0-17 anos) no momento atual
             const isCriancaAtual = idadeAtual < 18;
             
             if (isCriancaAtual) {
@@ -980,15 +1126,12 @@
                 item.classList.remove('crianca');
             }
             
-            // Para preview inicial, usamos o valor de criança se for criança agora
-            // ou valor de adulto se já for adulto
             let valorAnualUSD;
             if (isCriancaAtual) {
-                // Contar crianças no momento atual para preview
                 const numCriancas = contarCriancasNoMomento();
-                valorAnualUSD = getValorCrianca(numCriancas || 1, plano, franquia);
+                valorAnualUSD = getValorCrianca(numCriancas || 1, plano, franquia, 0);
             } else {
-                valorAnualUSD = getValorVumiPorIdade(idadeAtual, plano, franquia);
+                valorAnualUSD = getValorVumiPorIdade(idadeAtual, plano, franquia, 0);
             }
             
             const valorMensalUSD = valorAnualUSD / 12;
@@ -1004,6 +1147,14 @@
             
             if (isCriancaAtual) {
                 infoText += `<br><span class="badge badge-crianca">👶 TARIFA INFANTIL</span>`;
+            }
+            
+            const descontoTotal = descontoIncentivo + descontoAgro + descontoMedico;
+            if (descontoTotal > 0) {
+                infoText += `<br><span style="color: #28a745; font-weight: bold;">💰 Desconto 1º ano: ${descontoTotal}%</span>`;
+                if (descontoIncentivo > 0) {
+                    infoText += `<br><small style="color: #856404;">(Incentivo ${descontoIncentivo}% só no 1º ano)</small>`;
+                }
             }
             
             if (isAgro && (franquia == 500 || franquia == 1000)) {
@@ -1062,7 +1213,6 @@
             
             let idade = anoReferencia - anoNasc;
             
-            // Ajustar se ainda não fez aniversário no ano de referência
             const hoje = new Date();
             const dataRef = new Date(anoReferencia, hoje.getMonth(), hoje.getDate());
             const anivNoAnoRef = new Date(anoReferencia, mes, dia);
@@ -1118,7 +1268,10 @@
             const cotacao = parseFloat(document.getElementById('cotacaoDolar').value) || 5;
             const anoInicio = parseInt(document.getElementById('anoInicio').value);
             
-            // Primeiro, coletar todas as pessoas
+            // CORREÇÃO: No primeiro ano de entrada (novo cliente), NÃO aplica reajuste anual
+            // pois está pagando o valor cheio da tabela (com descontos)
+            const aplicarReajustePrimeiroAno = false; // Sempre false para novo cliente VUMI
+            
             items.forEach(item => {
                 const nome = item.querySelector('.nome-pessoa').value || 'Sem nome';
                 const nasc = item.querySelector('.nascimento-pessoa').value;
@@ -1171,10 +1324,12 @@
                     anosProj, 
                     anoInicio, 
                     reajusteBradescoAnual,
-                    pessoa.jaPassouAniv
+                    pessoa.jaPassouAniv,
+                    false // Bradesco segue regra normal
                 );
                 
-                const projVumi = calcularProjecaoVumiDinamico(
+                // CORREÇÃO: Nova função de projeção VUMI corrigida
+                const projVumi = calcularProjecaoVumiCorrigido(
                     pessoa.nasc,
                     idadeAtual,
                     anosProj,
@@ -1261,7 +1416,7 @@
             mostrarResultados();
         }
 
-        function calcularProjecaoBradesco(valorInicial, idadeAtual, anosProj, anoInicio, reajusteAnualApolice, jaPassouAnivInicial) {
+        function calcularProjecaoBradesco(valorInicial, idadeAtual, anosProj, anoInicio, reajusteAnualApolice, jaPassouAnivInicial, aplicarReajustePrimeiroAno) {
             const dados = [];
             let valorMensal = valorInicial || 0;
             if (valorMensal === 0) valorMensal = 100;
@@ -1287,8 +1442,13 @@
                 
                 if (i === 0) {
                     evento = 'Início';
+                    
+                    if (aplicarReajustePrimeiroAno && reajusteAnualApolice > 0) {
+                        reajusteAnual = reajusteAnualApolice;
+                        valorMensal = valorMensal * (1 + reajusteAnual / 100);
+                        evento = `Aniversário Apólice +${reajusteAnual}%`;
+                    }
                 } else {
-                    // REAJUSTE POR FAIXA ETÁRIA - SÓ QUANDO MUDA DE FAIXA
                     if (novaFaixa.min !== faixaAtual.min) {
                         reajusteFaixa = novaFaixa.pct;
                         valorMensal = valorMensal * (1 + reajusteFaixa / 100);
@@ -1296,7 +1456,6 @@
                         faixaAtual = novaFaixa;
                     }
                     
-                    // REAJUSTE ANUAL ADICIONAL (SE HABILITADO)
                     if (reajusteAnualApolice > 0) {
                         reajusteAnual = reajusteAnualApolice;
                         valorMensal = valorMensal * (1 + reajusteAnual / 100);
@@ -1322,7 +1481,10 @@
             return dados;
         }
 
-        function calcularProjecaoVumiDinamico(dataNasc, idadeAtual, anosProj, anoInicio, reajusteAnualApolice, franquia, plano, cotacao) {
+        // ============================================
+        // CORREÇÃO PRINCIPAL: Nova função de projeção VUMI
+        // ============================================
+        function calcularProjecaoVumiCorrigido(dataNasc, idadeAtual, anosProj, anoInicio, reajusteAnualApolice, franquia, plano, cotacao) {
             const dados = [];
             
             for (let i = 0; i <= anosProj; i++) {
@@ -1330,55 +1492,131 @@
                 const idade = calcularIdade(dataNasc, ano);
                 const isCrianca = idade < 18;
                 
-                // Calcular valor base para este ano
-                let valorAnualUSD;
-                if (isCrianca) {
-                    // Contar quantas crianças existem neste ano específico
-                    const numCriancas = contarCriancasNaApolice(ano);
-                    valorAnualUSD = getValorCrianca(numCriancas || 1, plano, franquia);
-                } else {
-                    valorAnualUSD = getValorVumiPorIdade(idade, plano, franquia);
-                }
-                
-                const valorMensal = (valorAnualUSD / 12) * cotacao;
-                
+                let valorMensal;
                 let reajusteFaixa = 0;
                 let reajusteAnual = 0;
                 let transicao18 = false;
                 let evento = '-';
                 
                 if (i === 0) {
+                    // PRIMEIRO ANO: Valor da tabela com descontos (sem reajuste anual)
+                    let valorAnualUSD;
+                    if (isCrianca) {
+                        const numCriancas = contarCriancasNaApolice(ano);
+                        valorAnualUSD = getValorCrianca(numCriancas || 1, plano, franquia, 0);
+                    } else {
+                        valorAnualUSD = getValorVumiPorIdade(idade, plano, franquia, 0);
+                    }
+                    valorMensal = (valorAnualUSD / 12) * cotacao;
+                    
                     evento = isCrianca ? 'Início (Criança)' : 'Início';
+                    
+                    const descontoTotal = descontoIncentivo + descontoAgro + descontoMedico;
+                    if (descontoTotal > 0) {
+                        evento += `<br><small style="color: #28a745;">Desconto: ${descontoTotal}%</small>`;
+                    }
+                    
                 } else {
+                    // ANOS SEGUINTES
                     const idadeAnterior = calcularIdade(dataNasc, ano - 1);
                     const foiCriancaAnterior = idadeAnterior < 18;
                     
-                    // Verificar transição de criança para adulto
+                    // Valor base do ano anterior (para cálculo de reajuste)
+                    const valorAnterior = dados[i-1].valorMensal;
+                    
                     if (foiCriancaAnterior && !isCrianca) {
+                        // TRANSIÇÃO: Criança → Adulto (18 anos)
                         transicao18 = true;
-                        evento = '🎂 Completou 18 anos!';
+                        
+                        // Pega valor da criança no ano anterior (com descontos do ano anterior)
+                        const numCriancasAntes = contarCriancasNaApolice(ano - 1);
+                        const valorCriancaAnoAnterior = getValorCrianca(numCriancasAntes || 1, plano, franquia, i-1);
+                        
+                        // Pega valor base do adulto na nova faixa (sem descontos)
+                        const valorBaseAdulto = getValorBaseVumiPorIdade(idade, plano, franquia);
+                        
+                        // Pega valor base da criança (sem descontos)
+                        const valorBaseCrianca = getValorBaseCrianca(numCriancasAntes || 1, plano, franquia);
+                        
+                        // Calcula reajuste percentual da mudança de faixa
+                        let reajusteMudancaFaixa = 0;
+                        if (valorBaseCrianca > 0) {
+                            reajusteMudancaFaixa = ((valorBaseAdulto - valorBaseCrianca) / valorBaseCrianca) * 100;
+                        }
+                        
+                        // Aplica reajuste de mudança sobre o valor anterior
+                        let novoValor = valorAnterior * (1 + reajusteMudancaFaixa / 100);
+                        
+                        // Aplica descontos do ano atual (Agro + Médico, sem Incentivo)
+                        const valorComDescontos = aplicarDescontos(valorBaseAdulto, i);
+                        valorMensal = (valorComDescontos / 12) * cotacao;
+                        
+                        // Se o valor calculado pela proporção for diferente, usa o valor proporcional
+                        // para manter a coerência com o histórico
+                        const valorProporcional = valorAnterior * (1 + reajusteMudancaFaixa / 100);
+                        
+                        // Usa o maior valor (tabela ou proporcional) para não prejudicar o cliente
+                        valorMensal = Math.max(valorMensal, valorProporcional);
+                        
+                        reajusteFaixa = reajusteMudancaFaixa;
+                        evento = `🎂 18 anos (+${reajusteMudancaFaixa.toFixed(2)}%)`;
+                        
                     } else if (!isCrianca) {
-                        // REAJUSTE POR FAIXA ETÁRIA APENAS PARA ADULTOS
+                        // ADULTO → ADULTO (pode ter mudança de faixa)
                         const faixaAnterior = getFaixaEtaria(idadeAnterior, plano);
                         const faixaAtual = getFaixaEtaria(idade, plano);
                         
                         if (faixaAtual !== faixaAnterior) {
-                            reajusteFaixa = getReajusteVumi(idade, plano, franquia);
-                            if (reajusteFaixa !== 0) {
-                                evento = `Idade ${idade} (${reajusteFaixa > 0 ? '+' : ''}${reajusteFaixa.toFixed(2)}%)`;
+                            // MUDANÇA DE FAIXA ETÁRIA
+                            
+                            // Pega valores BASE (sem descontos) das faixas
+                            const valorBaseAnterior = getValorBaseVumiPorIdade(idadeAnterior, plano, franquia);
+                            const valorBaseAtual = getValorBaseVumiPorIdade(idade, plano, franquia);
+                            
+                            // Calcula percentual de reajuste entre as faixas
+                            let pctReajusteFaixa = 0;
+                            if (valorBaseAnterior > 0) {
+                                pctReajusteFaixa = ((valorBaseAtual - valorBaseAnterior) / valorBaseAnterior) * 100;
+                            }
+                            
+                            // Aplica reajuste de faixa sobre o valor anterior acumulado
+                            let novoValor = valorAnterior * (1 + pctReajusteFaixa / 100);
+                            
+                            // Aplica reajuste anual se houver
+                            if (reajusteAnualApolice > 0) {
+                                novoValor = novoValor * (1 + reajusteAnualApolice / 100);
+                                reajusteAnual = reajusteAnualApolice;
+                            }
+                            
+                            valorMensal = novoValor;
+                            reajusteFaixa = pctReajusteFaixa;
+                            evento = `Idade ${idade} (${pctReajusteFaixa > 0 ? '+' : ''}${pctReajusteFaixa.toFixed(2)}%)`;
+                            if (reajusteAnual > 0) {
+                                evento += ` + Anual +${reajusteAnual}%`;
+                            }
+                            
+                        } else {
+                            // MESMA FAIXA: apenas reajuste anual
+                            valorMensal = valorAnterior;
+                            
+                            if (reajusteAnualApolice > 0) {
+                                reajusteAnual = reajusteAnualApolice;
+                                valorMensal = valorAnterior * (1 + reajusteAnual / 100);
+                                evento = `Anual +${reajusteAnual}%`;
+                            } else {
+                                evento = 'Sem reajuste';
                             }
                         }
                     } else {
-                        evento = 'Criança';
-                    }
-                    
-                    // REAJUSTE ANUAL ADICIONAL (SE HABILITADO) - Aplica para todos
-                    if (reajusteAnualApolice > 0) {
-                        reajusteAnual = reajusteAnualApolice;
-                        if (evento === '-' || evento === 'Criança') {
+                        // CRIANÇA → CRIANÇA (mesma faixa)
+                        valorMensal = valorAnterior;
+                        
+                        if (reajusteAnualApolice > 0) {
+                            reajusteAnual = reajusteAnualApolice;
+                            valorMensal = valorAnterior * (1 + reajusteAnual / 100);
                             evento = `Anual +${reajusteAnual}%`;
                         } else {
-                            evento += ` + Anual +${reajusteAnual}%`;
+                            evento = 'Sem reajuste';
                         }
                     }
                 }
@@ -1406,14 +1644,30 @@
             const plano = document.getElementById('planoVumiSelecionado').value;
             const franquia = document.getElementById('franquiaVumi').value;
             
-            // Contar crianças no início
             const anoInicio = parseInt(document.getElementById('anoInicio').value);
             const numCriancasInicio = contarCriancasNaApolice(anoInicio);
+            
+            const descontoTotalAno1 = descontoIncentivo + descontoAgro + descontoMedico;
+            let descontoHTML = '';
+            if (descontoTotalAno1 > 0) {
+                descontoHTML = `
+                    <div class="summary-card" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);">
+                        <h4>Desconto 1º Ano</h4>
+                        <div class="value">${descontoTotalAno1}%</div>
+                    </div>
+                    ${(descontoAgro + descontoMedico) > 0 ? `
+                    <div class="summary-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                        <h4>Desconto Anos 2+</h4>
+                        <div class="value">${descontoAgro + descontoMedico}%</div>
+                    </div>` : ''}
+                `;
+            }
             
             const resumoHTML = `
                 <div class="summary-card"><h4>Total de Vidas</h4><div class="value">${dadosCalculados.pessoas.length}</div></div>
                 ${numCriancasInicio > 0 ? `<div class="summary-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);"><h4>Crianças</h4><div class="value">${numCriancasInicio}</div></div>` : ''}
                 ${isAgro ? '<div class="summary-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);"><h4>Tipo</h4><div class="value">🌾 AGRO</div></div>' : ''}
+                ${descontoHTML}
                 <div class="summary-card"><h4>Plano VUMI</h4><div class="value">${plano}</div></div>
                 <div class="summary-card"><h4>Franquia</h4><div class="value">$${franquia}</div></div>
                 <div class="summary-card"><h4>BRADESCO Total</h4><div class="value">${formatarMoeda(ultimoAno.bradescoAcumulado)}</div></div>
@@ -1425,18 +1679,25 @@
             const tbody = document.getElementById('tbodyAnual');
             tbody.innerHTML = '';
             
-            dadosCalculados.anual.forEach(ano => {
+            dadosCalculados.anual.forEach((ano, index) => {
                 const tr = document.createElement('tr');
                 const infoReajusteBradesco = formatarReajustes(ano.reajustesBradesco, 'bradesco');
                 const infoReajusteVumi = formatarReajustesVumi(ano.reajustesVumi);
                 const classeDiferenca = ano.diferencaMensal > 0 ? 'economia' : 'prejuizo';
+                
+                let descontoIndicador = '';
+                if (index === 0 && descontoTotalAno1 > 0) {
+                    descontoIndicador = `<br><small style="color: #007bff;">(${descontoTotalAno1}% off)</small>`;
+                } else if (index > 0 && (descontoAgro + descontoMedico) > 0) {
+                    descontoIndicador = `<br><small style="color: #28a745;">(${descontoAgro + descontoMedico}% off)</small>`;
+                }
                 
                 tr.innerHTML = `
                     <td><strong>${ano.ano}</strong></td>
                     <td class="col-mensal-bradesco">${formatarMoeda(ano.bradescoMensal)}</td>
                     <td>${infoReajusteBradesco}</td>
                     <td>${formatarMoeda(ano.bradescoAnual)}</td>
-                    <td class="col-mensal-vumi">${formatarMoeda(ano.vumiMensal)}</td>
+                    <td class="col-mensal-vumi">${formatarMoeda(ano.vumiMensal)}${descontoIndicador}</td>
                     <td>${infoReajusteVumi}</td>
                     <td>${formatarMoeda(ano.vumiAnual)}</td>
                     <td class="${classeDiferenca}">${ano.diferencaMensal > 0 ? '+' : ''}${formatarMoeda(ano.diferencaMensal)}</td>
@@ -1449,6 +1710,18 @@
             dadosCalculados.pessoas.forEach(p => {
                 const primeiraLinha = p.vumi[0];
                 const ehCriancaInicio = primeiraLinha.isCrianca;
+                
+                let descontosInfo = '';
+                if (descontoIncentivo > 0 || descontoAgro > 0 || descontoMedico > 0) {
+                    descontosInfo = `<p style="color: #28a745; font-size: 11px;">💰 Descontos: 1º ano ${descontoTotalAno1}%`;
+                    if (descontoIncentivo > 0) {
+                        descontosInfo += ` (Incentivo ${descontoIncentivo}%`;
+                        if (descontoAgro > 0) descontosInfo += ` + Agro ${descontoAgro}%`;
+                        if (descontoMedico > 0) descontosInfo += ` + Médico ${descontoMedico}%`;
+                        descontosInfo += `)`;
+                    }
+                    descontosInfo += ` | Anos seguintes: ${descontoAgro + descontoMedico}%</p>`;
+                }
                 
                 detalhesHTML += `
                     <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">
@@ -1471,6 +1744,7 @@
                                     <p>Valor Final: ${formatarMoeda(p.vumi[p.vumi.length-1].valorMensal)}</p>
                                     <p>Custo Total: ${formatarMoeda(p.vumi.reduce((acc, val) => acc + (val.valorMensal * 12), 0))}</p>
                                     ${p.vumi.some(v => v.transicao18) ? '<p style="color: #ff6b6b; font-weight: bold;">🎂 Fez 18 anos durante a projeção</p>' : ''}
+                                    ${descontosInfo}
                                 </div>
                             </div>
                         </div>
@@ -1510,16 +1784,11 @@
         function formatarReajustesVumi(reajustes) {
             if (reajustes.length === 0) return '-';
             
-            const criancas = reajustes.filter(r => r.isCrianca && !r.transicao18);
             const transicoes = reajustes.filter(r => r.transicao18);
-            const porFaixa = reajustes.filter(r => r.reajusteFaixa !== 0 && !r.isCrianca);
+            const porFaixa = reajustes.filter(r => r.reajusteFaixa !== 0 && !r.isCrianca && !r.transicao18);
             const anual = reajustes.filter(r => r.reajusteAnual > 0 && r.reajusteFaixa === 0 && !r.isCrianca);
             
             let html = '';
-            
-            if (criancas.length > 0) {
-                html += `<div class="faixa-baixa">👶 ${criancas.length} criança(s)</div>`;
-            }
             
             if (transicoes.length > 0) {
                 html += `<div class="transicao-18">🎂 ${transicoes.length} fez 18 anos</div>`;
@@ -1545,6 +1814,7 @@
         function atualizarGraficos() {
             const anos = dadosCalculados.anual.map(a => a.ano);
             
+            // Gráfico 1: Evolução Mensal
             const ctx1 = document.getElementById('graficoMensal').getContext('2d');
             if (graficoMensal) graficoMensal.destroy();
             
@@ -1557,13 +1827,15 @@
                         data: dadosCalculados.anual.map(a => a.bradescoMensal),
                         borderColor: '#ff6600',
                         backgroundColor: 'rgba(255, 102, 0, 0.1)',
-                        tension: 0.4
+                        tension: 0.4,
+                        fill: false
                     }, {
                         label: 'VUMI - Mensal',
                         data: dadosCalculados.anual.map(a => a.vumiMensal),
                         borderColor: '#00a8e8',
                         backgroundColor: 'rgba(0, 168, 232, 0.1)',
-                        tension: 0.4
+                        tension: 0.4,
+                        fill: false
                     }]
                 },
                 options: {
@@ -1586,6 +1858,7 @@
                 }
             });
             
+            // Gráfico 2: Custo Acumulado
             const ctx2 = document.getElementById('graficoAcumulado').getContext('2d');
             if (graficoAcumulado) graficoAcumulado.destroy();
             
@@ -1628,6 +1901,109 @@
                     }
                 }
             });
+            
+            // CORREÇÃO: Gráfico 3 - Diferença Mensal (Economia/Prejuízo)
+            const ctx3 = document.getElementById('graficoDiferenca').getContext('2d');
+            if (graficoDiferenca) graficoDiferenca.destroy();
+            
+            const diferencas = dadosCalculados.anual.map(a => a.diferencaMensal);
+            const coresDiferenca = diferencas.map(d => d >= 0 ? '#28a745' : '#dc3545');
+            
+            graficoDiferenca = new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: anos,
+                    datasets: [{
+                        label: 'Diferença (Bradesco - VUMI)',
+                        data: diferencas,
+                        backgroundColor: coresDiferenca,
+                        borderColor: coresDiferenca,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const valor = context.parsed.y;
+                                    return (valor >= 0 ? 'Economia: ' : 'Prejuízo: ') + formatarMoeda(Math.abs(valor));
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { 
+                                callback: value => 'R$ ' + value.toLocaleString('pt-BR'),
+                                color: context => context.tick.value >= 0 ? '#28a745' : '#dc3545'
+                            },
+                            grid: {
+                                color: context => context.tick.value === 0 ? '#000' : '#e0e0e0',
+                                lineWidth: context => context.tick.value === 0 ? 2 : 1
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico 4: Comparativo de Reajustes
+            const ctx4 = document.getElementById('graficoReajustes').getContext('2d');
+            if (graficoReajustes) graficoReajustes.destroy();
+            
+            graficoReajustes = new Chart(ctx4, {
+                type: 'line',
+                data: {
+                    labels: anos,
+                    datasets: [{
+                        label: 'Variação Bradesco',
+                        data: dadosCalculados.anual.map((a, i) => {
+                            if (i === 0) return 0;
+                            const anterior = dadosCalculados.anual[i-1].bradescoMensal;
+                            return ((a.bradescoMensal - anterior) / anterior * 100).toFixed(2);
+                        }),
+                        borderColor: '#ff6600',
+                        backgroundColor: 'rgba(255, 102, 0, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Variação VUMI',
+                        data: dadosCalculados.anual.map((a, i) => {
+                            if (i === 0) return 0;
+                            const anterior = dadosCalculados.anual[i-1].vumiMensal;
+                            return ((a.vumiMensal - anterior) / anterior * 100).toFixed(2);
+                        }),
+                        borderColor: '#00a8e8',
+                        backgroundColor: 'rgba(0, 168, 232, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { callback: value => value + '%' },
+                            title: { display: true, text: 'Variação %' }
+                        }
+                    }
+                }
+            });
         }
 
         function mostrarTab(tabId) {
@@ -1637,7 +2013,6 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // EXPORTAÇÕES
         function exportarCSV(tipo) {
             let csv = '';
             if (tipo === 'anual') {
@@ -1646,7 +2021,6 @@
                     const reajB = a.reajustesBradesco.map(r => `${r.nome}(${r.idade}a)${r.reajusteFaixa > 0 ? '+' : ''}${r.reajusteFaixa.toFixed(2)}%`).join('; ');
                     const reajV = a.reajustesVumi.map(r => {
                         let txt = `${r.nome}(${r.idade}a)`;
-                        if (r.isCrianca) txt += '[CRIANÇA]';
                         if (r.transicao18) txt += '[18 ANOS]';
                         if (r.reajusteFaixa !== 0) txt += `${r.reajusteFaixa > 0 ? '+' : ''}${r.reajusteFaixa.toFixed(2)}%`;
                         return txt;
@@ -1673,7 +2047,6 @@
                 const reajB = a.reajustesBradesco.map(r => `${r.nome}(${r.idade}a)`).join(', ');
                 const reajV = a.reajustesVumi.map(r => {
                     let txt = `${r.nome}(${r.idade}a)`;
-                    if (r.isCrianca) txt += '[CRIANÇA]';
                     if (r.transicao18) txt += '[18 ANOS]';
                     return txt;
                 }).join(', ');
@@ -1713,7 +2086,11 @@
             const anoInicio = parseInt(document.getElementById('anoInicio').value);
             const numCriancas = contarCriancasNaApolice(anoInicio);
             const temCriancas = numCriancas > 0 ? ` | Crianças: ${numCriancas}` : '';
-            doc.text(`Plano: ${plano} | Franquia: $${franquia}${temCriancas} | Data: ${new Date().toLocaleDateString()}`, 15, 30);
+            const descontoTotalAno1 = descontoIncentivo + descontoAgro + descontoMedico;
+            const temDesconto = descontoTotalAno1 > 0 ? ` | Desconto 1º ano: ${descontoTotalAno1}%` : '';
+            const temDescontoSeguintes = (descontoAgro + descontoMedico) > 0 ? ` | Anos 2+: ${descontoAgro + descontoMedico}%` : '';
+            
+            doc.text(`Plano: ${plano} | Franquia: $${franquia}${temCriancas}${temDesconto}${temDescontoSeguintes} | Data: ${new Date().toLocaleDateString()}`, 15, 30);
             
             const headers = [['Ano', 'BRADESCO Mensal', 'VUMI Mensal', 'BRADESCO Anual', 'VUMI Anual', 'Diferença Mensal', 'Diferença Anual']];
             const data = dadosCalculados.anual.map(a => [
@@ -1747,22 +2124,30 @@
             doc.save(`projecao_vumi_${new Date().getFullYear()}.pdf`);
         }
 
-        // MODAL VUMI
         function abrirModalTabelaVumi() {
             const plano = document.getElementById('planoVumiSelecionado').value;
             const franquia = parseInt(document.getElementById('franquiaVumi').value) || 2000;
             const cotacao = parseFloat(document.getElementById('cotacaoDolar').value) || 5;
             const anoInicio = parseInt(document.getElementById('anoInicio').value);
+            const descontoTotalAno1 = descontoIncentivo + descontoAgro + descontoMedico;
             
             document.getElementById('nomePlanoModal').textContent = plano;
             document.getElementById('franquiaModal').textContent = `$${franquia}`;
             document.getElementById('cotacaoModal').textContent = cotacao.toFixed(2);
             document.getElementById('badgeAgro').style.display = isAgro ? 'inline-block' : 'none';
             
+            if (descontoTotalAno1 > 0) {
+                document.getElementById('badgeDesconto').style.display = 'inline-block';
+                document.getElementById('infoDescontoModal').style.display = 'inline';
+                document.getElementById('valorDescontoModal').textContent = `${descontoTotalAno1}% (1º ano) / ${descontoAgro + descontoMedico}% (anos 2+)`;
+            } else {
+                document.getElementById('badgeDesconto').style.display = 'none';
+                document.getElementById('infoDescontoModal').style.display = 'none';
+            }
+            
             const tbody = document.getElementById('tbodyPrecosVumi');
             tbody.innerHTML = '';
             
-            // Verificar se há crianças na apólice
             const numCriancas = contarCriancasNaApolice(anoInicio);
             
             let tabela = TABELAS_VUMI_ADULTOS[plano][franquia];
@@ -1773,16 +2158,16 @@
                 tabela = TABELAS_VUMI_ADULTOS[plano][2000];
             }
             
-            // Adicionar seção de crianças primeiro se houver
             if (numCriancas > 0) {
                 const trCrianca = document.createElement('tr');
                 trCrianca.style.backgroundColor = '#fff5f5';
-                trCrianca.innerHTML = `<td colspan="4" style="font-weight: bold; color: #d32f2f; padding: 10px;">👶 TARIFAS PARA CRIANÇAS (0-17 anos) - ${numCriancas} criança(s) na apólice</td>`;
+                trCrianca.innerHTML = `<td colspan="4" style="font-weight: bold; color: #d32f2f; padding: 10px;">👶 TARIFAS PARA CRIANÇAS (0-17 anos) - ${numCriancas} criança(s) na apólice ${descontoTotalAno1 > 0 ? `(Desconto 1º ano: ${descontoTotalAno1}%)` : ''}</td>`;
                 tbody.appendChild(trCrianca);
                 
                 ['1', '2', '3+'].forEach(qtd => {
                     const valorAnualBase = TABELAS_VUMI_CRIANCAS[plano][franquia][qtd];
-                    const valorAnual = valorAnualBase * multiplicador;
+                    const valorAnualComAgro = valorAnualBase * multiplicador;
+                    const valorAnual = aplicarDescontos(valorAnualComAgro, 0);
                     const valorMensalUSD = valorAnual / 12;
                     const valorMensalRS = valorMensalUSD * cotacao;
                     
@@ -1803,11 +2188,10 @@
                 tbody.appendChild(trSeparador);
                 
                 const trAdulto = document.createElement('tr');
-                trAdulto.innerHTML = `<td colspan="4" style="font-weight: bold; color: #1e3c72; padding: 10px;">👤 TARIFAS PARA ADULTOS (18+ anos)</td>`;
+                trAdulto.innerHTML = `<td colspan="4" style="font-weight: bold; color: #1e3c72; padding: 10px;">👤 TARIFAS PARA ADULTOS (18+ anos) ${descontoTotalAno1 > 0 ? `(Desconto 1º ano: ${descontoTotalAno1}%)` : ''}</td>`;
                 tbody.appendChild(trAdulto);
             }
             
-            // Ordenar faixas por idade
             const faixasOrdenadas = Object.keys(tabela).sort((a, b) => {
                 const getNumero = (str) => {
                     const match = str.match(/(\d+)/);
@@ -1818,7 +2202,8 @@
             
             faixasOrdenadas.forEach(faixa => {
                 const valorAnualBase = tabela[faixa];
-                const valorAnual = valorAnualBase * multiplicador;
+                const valorAnualComAgro = valorAnualBase * multiplicador;
+                const valorAnual = aplicarDescontos(valorAnualComAgro, 0);
                 const valorMensalUSD = valorAnual / 12;
                 const valorMensalRS = valorMensalUSD * cotacao;
                 

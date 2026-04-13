@@ -118,8 +118,7 @@
         .alerta-incentivo { background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 8px; border-radius: 6px; font-size: 11px; margin-top: 8px; }
         .debug-info { background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; border-radius: 6px; font-size: 10px; color: #6c757d; margin-top: 10px; font-family: monospace; }
     </style>
-</head>
-<body>
+</head>	<body>
     <div class="container">
         <h1>📊 Dashboard Projeção Seguro Saúde - Multi-Vidas</h1>
         <p class="subtitle">Bradesco vs VUMI | Projeção até 80 anos | Clientes Agro e Tradicionais</p>
@@ -257,8 +256,8 @@
                 <div class="info-box" style="margin-top: 15px;">
                     💡 <strong>Regras de Cálculo VUMI:</strong><br>
                     • <strong>1º Ano:</strong> Valor tabela - descontos (sem reajuste anual)<br>
-                    • <strong>Mudança de faixa:</strong> Valor acumulado + diferença % da nova faixa + reajuste anual<br>
-                    • <strong>Sem mudança:</strong> Valor anterior + reajuste anual (se houver)
+                    • <strong>2º Ano:</strong> Base tabela - Agro/Médico + reajuste anual<br>
+                    • <strong>3º Ano em diante:</strong> Valor anterior + reajuste anual + reajuste faixa
                 </div>
                 <div style="margin-top: 15px;">
                     <button class="btn btn-primary" onclick="abrirModalTabelaVumi()">📋 Visualizar Tabela de Preços VUMI</button>
@@ -372,9 +371,8 @@
             </div>
             <button class="btn btn-success" onclick="fecharModalTabelaVumi()" style="margin-top: 15px;">✅ Fechar</button>
         </div>
-    </div>
-    <script>
-        // [Todas as tabelas permanecem iguais...]
+    </div>    <script>
+        // TABELAS VUMI - ADULTOS
         const TABELAS_VUMI_ADULTOS = {
             'DIRECT': {
                 2000: {
@@ -817,6 +815,8 @@
         }
         
         // CORREÇÃO: Função para aplicar descontos com base no ano
+        // Ano 0 = 1º ano (aplica Incentivo + Agro + Médico)
+        // Ano 1+ = anos seguintes (aplica apenas Agro + Médico)
         function aplicarDescontos(valorOriginal, ano = 0) {
             let valor = valorOriginal;
             
@@ -983,7 +983,7 @@
             return reajuste ? reajuste.pct : 0;
         }
 
-        // CORREÇÃO: Retorna valor BASE da tabela (sem descontos) para cálculo de reajuste
+        // Retorna valor BASE da tabela (sem descontos) para cálculo de reajuste
         function getValorBaseVumiPorIdade(idade, plano, franquia) {
             if (idade < 18) return null;
             
@@ -1003,6 +1003,7 @@
             return valorBase * multiplicador;
         }
 
+        // Retorna valor com descontos aplicados conforme o ano
         function getValorVumiPorIdade(idade, plano, franquia, ano = 0) {
             const valorBase = getValorBaseVumiPorIdade(idade, plano, franquia);
             return aplicarDescontos(valorBase, ano);
@@ -1042,9 +1043,7 @@
         function getValorCrianca(quantidadeCriancas, plano, franquia, ano = 0) {
             const valorBase = getValorBaseCrianca(quantidadeCriancas, plano, franquia);
             return aplicarDescontos(valorBase, ano);
-        }
-
-        function adicionarPessoa() {
+        }        function adicionarPessoa() {
             contadorPessoas++;
             const div = document.createElement('div');
             div.className = 'pessoa-item';
@@ -1259,6 +1258,9 @@
             alert(`${preenchidos} pessoa(s) atualizada(s) com valores da tabela VUMI!`);
         }
 
+        // ============================================
+        // CORREÇÃO PRINCIPAL: Função de cálculo VUMI corrigida
+        // ============================================
         function calcularTudo() {
             pessoas = [];
             const items = document.querySelectorAll('.pessoa-item');
@@ -1268,9 +1270,10 @@
             const cotacao = parseFloat(document.getElementById('cotacaoDolar').value) || 5;
             const anoInicio = parseInt(document.getElementById('anoInicio').value);
             
-            // CORREÇÃO: No primeiro ano de entrada (novo cliente), NÃO aplica reajuste anual
-            // pois está pagando o valor cheio da tabela (com descontos)
-            const aplicarReajustePrimeiroAno = false; // Sempre false para novo cliente VUMI
+            const reajusteBradescoAnual = document.getElementById('reajusteAnualBradesco').checked ? 
+                parseFloat(document.getElementById('pctReajusteBradesco').value) || 0 : 0;
+            const reajusteVumiAnual = document.getElementById('reajusteAnualVumi').checked ? 
+                parseFloat(document.getElementById('pctReajusteVumi').value) || 0 : 0;
             
             items.forEach(item => {
                 const nome = item.querySelector('.nome-pessoa').value || 'Sem nome';
@@ -1300,11 +1303,6 @@
             
             let idadeLimite = parseInt(document.getElementById('idadeLimite').value);
             
-            const reajusteBradescoAnual = document.getElementById('reajusteAnualBradesco').checked ? 
-                parseFloat(document.getElementById('pctReajusteBradesco').value) || 0 : 0;
-            const reajusteVumiAnual = document.getElementById('reajusteAnualVumi').checked ? 
-                parseFloat(document.getElementById('pctReajusteVumi').value) || 0 : 0;
-            
             dadosCalculados = { anual: [], pessoas: [] };
             
             pessoas.forEach(pessoa => {
@@ -1325,11 +1323,11 @@
                     anoInicio, 
                     reajusteBradescoAnual,
                     pessoa.jaPassouAniv,
-                    false // Bradesco segue regra normal
+                    false
                 );
                 
-                // CORREÇÃO: Nova função de projeção VUMI corrigida
-                const projVumi = calcularProjecaoVumiCorrigido(
+                // NOVA FUNÇÃO CORRIGIDA
+                const projVumi = calcularProjecaoVumiCorrigida(
                     pessoa.nasc,
                     idadeAtual,
                     anosProj,
@@ -1482,10 +1480,17 @@
         }
 
         // ============================================
-        // CORREÇÃO PRINCIPAL: Nova função de projeção VUMI
+        // FUNÇÃO CORRIGIDA: Cálculo VUMI conforme regras específicas
         // ============================================
-        function calcularProjecaoVumiCorrigido(dataNasc, idadeAtual, anosProj, anoInicio, reajusteAnualApolice, franquia, plano, cotacao) {
+        // Regras:
+        // 1º Ano: Valor tabela - descontos (Incentivo + Agro + Médico) - SEM reajuste anual
+        // 2º Ano: Base tabela - Agro/Médico + reajuste anual (7%)
+        // 3º Ano+: Valor anterior + reajuste anual + reajuste faixa se houver
+        // ============================================
+        function calcularProjecaoVumiCorrigida(dataNasc, idadeAtual, anosProj, anoInicio, reajusteAnualApolice, franquia, plano, cotacao) {
             const dados = [];
+            let valorMensalAnterior = 0;
+            let valorBaseAnterior = 0; // Guarda o valor base da tabela do ano anterior
             
             for (let i = 0; i <= anosProj; i++) {
                 const ano = anoInicio + i;
@@ -1493,21 +1498,27 @@
                 const isCrianca = idade < 18;
                 
                 let valorMensal;
+                let valorBaseAtual; // Valor base da tabela para este ano
                 let reajusteFaixa = 0;
                 let reajusteAnual = 0;
                 let transicao18 = false;
                 let evento = '-';
                 
+                // Calcula valor base atual (sem descontos)
+                if (isCrianca) {
+                    const numCriancas = contarCriancasNaApolice(ano);
+                    valorBaseAtual = getValorBaseCrianca(numCriancas || 1, plano, franquia);
+                } else {
+                    valorBaseAtual = getValorBaseVumiPorIdade(idade, plano, franquia);
+                }
+                
                 if (i === 0) {
-                    // PRIMEIRO ANO: Valor da tabela com descontos (sem reajuste anual)
-                    let valorAnualUSD;
-                    if (isCrianca) {
-                        const numCriancas = contarCriancasNaApolice(ano);
-                        valorAnualUSD = getValorCrianca(numCriancas || 1, plano, franquia, 0);
-                    } else {
-                        valorAnualUSD = getValorVumiPorIdade(idade, plano, franquia, 0);
-                    }
-                    valorMensal = (valorAnualUSD / 12) * cotacao;
+                    // ========== 1º ANO ==========
+                    // Valor da tabela - descontos (Incentivo + Agro + Médico)
+                    // SEM reajuste anual
+                    
+                    const valorAnualComDescontos = aplicarDescontos(valorBaseAtual, 0); // ano = 0 (aplica tudo)
+                    valorMensal = (valorAnualComDescontos / 12) * cotacao;
                     
                     evento = isCrianca ? 'Início (Criança)' : 'Início';
                     
@@ -1516,110 +1527,173 @@
                         evento += `<br><small style="color: #28a745;">Desconto: ${descontoTotal}%</small>`;
                     }
                     
-                } else {
-                    // ANOS SEGUINTES
+                } else if (i === 1) {
+                    // ========== 2º ANO ==========
+                    // Base: Valor da tabela - Agro/Médico (SEM Incentivo)
+                    // + reajuste anual (se houver)
+                    
                     const idadeAnterior = calcularIdade(dataNasc, ano - 1);
                     const foiCriancaAnterior = idadeAnterior < 18;
                     
-                    // Valor base do ano anterior (para cálculo de reajuste)
-                    const valorAnterior = dados[i-1].valorMensal;
-                    
                     if (foiCriancaAnterior && !isCrianca) {
-                        // TRANSIÇÃO: Criança → Adulto (18 anos)
+                        // Transição Criança → Adulto
                         transicao18 = true;
                         
-                        // Pega valor da criança no ano anterior (com descontos do ano anterior)
-                        const numCriancasAntes = contarCriancasNaApolice(ano - 1);
-                        const valorCriancaAnoAnterior = getValorCrianca(numCriancasAntes || 1, plano, franquia, i-1);
-                        
-                        // Pega valor base do adulto na nova faixa (sem descontos)
+                        // Valor base do adulto na nova faixa
                         const valorBaseAdulto = getValorBaseVumiPorIdade(idade, plano, franquia);
                         
-                        // Pega valor base da criança (sem descontos)
-                        const valorBaseCrianca = getValorBaseCrianca(numCriancasAntes || 1, plano, franquia);
+                        // Valor base da criança no ano anterior
+                        const numCriancasAntes = contarCriancasNaApolice(ano - 1);
+                        const valorBaseCriancaAnterior = getValorBaseCrianca(numCriancasAntes || 1, plano, franquia);
                         
-                        // Calcula reajuste percentual da mudança de faixa
-                        let reajusteMudancaFaixa = 0;
-                        if (valorBaseCrianca > 0) {
-                            reajusteMudancaFaixa = ((valorBaseAdulto - valorBaseCrianca) / valorBaseCrianca) * 100;
+                        // Calcula reajuste percentual da mudança
+                        let pctReajusteMudanca = 0;
+                        if (valorBaseCriancaAnterior > 0) {
+                            pctReajusteMudanca = ((valorBaseAdulto - valorBaseCriancaAnterior) / valorBaseCriancaAnterior) * 100;
                         }
                         
-                        // Aplica reajuste de mudança sobre o valor anterior
-                        let novoValor = valorAnterior * (1 + reajusteMudancaFaixa / 100);
+                        // Aplica descontos de Agro/Médico (ano = 1, sem Incentivo)
+                        let valorAnual = aplicarDescontos(valorBaseAdulto, 1);
                         
-                        // Aplica descontos do ano atual (Agro + Médico, sem Incentivo)
-                        const valorComDescontos = aplicarDescontos(valorBaseAdulto, i);
-                        valorMensal = (valorComDescontos / 12) * cotacao;
+                        // Aplica reajuste anual se houver
+                        if (reajusteAnualApolice > 0) {
+                            valorAnual = valorAnual * (1 + reajusteAnualApolice / 100);
+                            reajusteAnual = reajusteAnualApolice;
+                        }
                         
-                        // Se o valor calculado pela proporção for diferente, usa o valor proporcional
-                        // para manter a coerência com o histórico
-                        const valorProporcional = valorAnterior * (1 + reajusteMudancaFaixa / 100);
+                        valorMensal = (valorAnual / 12) * cotacao;
+                        reajusteFaixa = pctReajusteMudanca;
+                        evento = `🎂 18 anos (+${pctReajusteMudanca.toFixed(2)}%)`;
+                        if (reajusteAnual > 0) evento += ` + Anual +${reajusteAnual}%`;
                         
-                        // Usa o maior valor (tabela ou proporcional) para não prejudicar o cliente
-                        valorMensal = Math.max(valorMensal, valorProporcional);
+                    } else {
+                        // Mesma categoria (adulto ou criança)
                         
-                        reajusteFaixa = reajusteMudancaFaixa;
-                        evento = `🎂 18 anos (+${reajusteMudancaFaixa.toFixed(2)}%)`;
+                        // Pega valor base do ano anterior
+                        let valorBaseAnoAnterior;
+                        if (foiCriancaAnterior) {
+                            const numCriancasAntes = contarCriancasNaApolice(ano - 1);
+                            valorBaseAnoAnterior = getValorBaseCrianca(numCriancasAntes || 1, plano, franquia);
+                        } else {
+                            valorBaseAnoAnterior = getValorBaseVumiPorIdade(idadeAnterior, plano, franquia);
+                        }
                         
-                    } else if (!isCrianca) {
-                        // ADULTO → ADULTO (pode ter mudança de faixa)
+                        // Verifica mudança de faixa etária
                         const faixaAnterior = getFaixaEtaria(idadeAnterior, plano);
                         const faixaAtual = getFaixaEtaria(idade, plano);
                         
-                        if (faixaAtual !== faixaAnterior) {
-                            // MUDANÇA DE FAIXA ETÁRIA
-                            
-                            // Pega valores BASE (sem descontos) das faixas
-                            const valorBaseAnterior = getValorBaseVumiPorIdade(idadeAnterior, plano, franquia);
-                            const valorBaseAtual = getValorBaseVumiPorIdade(idade, plano, franquia);
-                            
-                            // Calcula percentual de reajuste entre as faixas
-                            let pctReajusteFaixa = 0;
-                            if (valorBaseAnterior > 0) {
-                                pctReajusteFaixa = ((valorBaseAtual - valorBaseAnterior) / valorBaseAnterior) * 100;
-                            }
-                            
-                            // Aplica reajuste de faixa sobre o valor anterior acumulado
-                            let novoValor = valorAnterior * (1 + pctReajusteFaixa / 100);
-                            
-                            // Aplica reajuste anual se houver
-                            if (reajusteAnualApolice > 0) {
-                                novoValor = novoValor * (1 + reajusteAnualApolice / 100);
-                                reajusteAnual = reajusteAnualApolice;
-                            }
-                            
-                            valorMensal = novoValor;
-                            reajusteFaixa = pctReajusteFaixa;
-                            evento = `Idade ${idade} (${pctReajusteFaixa > 0 ? '+' : ''}${pctReajusteFaixa.toFixed(2)}%)`;
-                            if (reajusteAnual > 0) {
-                                evento += ` + Anual +${reajusteAnual}%`;
-                            }
-                            
+                        let pctReajusteMudanca = 0;
+                        if (faixaAtual !== faixaAnterior && !isCrianca) {
+                            // Mudança de faixa etária
+                            pctReajusteMudanca = ((valorBaseAtual - valorBaseAnoAnterior) / valorBaseAnoAnterior) * 100;
+                        }
+                        
+                        // Aplica descontos de Agro/Médico (ano = 1, sem Incentivo)
+                        let valorAnual = aplicarDescontos(valorBaseAtual, 1);
+                        
+                        // Aplica reajuste de faixa se houver
+                        if (pctReajusteMudanca !== 0) {
+                            valorAnual = valorAnual * (1 + pctReajusteMudanca / 100);
+                            reajusteFaixa = pctReajusteMudanca;
+                        }
+                        
+                        // Aplica reajuste anual se houver
+                        if (reajusteAnualApolice > 0) {
+                            valorAnual = valorAnual * (1 + reajusteAnualApolice / 100);
+                            reajusteAnual = reajusteAnualApolice;
+                        }
+                        
+                        valorMensal = (valorAnual / 12) * cotacao;
+                        
+                        if (reajusteFaixa !== 0) {
+                            evento = `Idade ${idade} (${reajusteFaixa > 0 ? '+' : ''}${reajusteFaixa.toFixed(2)}%)`;
+                            if (reajusteAnual > 0) evento += ` + Anual +${reajusteAnual}%`;
+                        } else if (reajusteAnual > 0) {
+                            evento = `Anual +${reajusteAnual}%`;
                         } else {
-                            // MESMA FAIXA: apenas reajuste anual
-                            valorMensal = valorAnterior;
-                            
-                            if (reajusteAnualApolice > 0) {
-                                reajusteAnual = reajusteAnualApolice;
-                                valorMensal = valorAnterior * (1 + reajusteAnual / 100);
-                                evento = `Anual +${reajusteAnual}%`;
-                            } else {
-                                evento = 'Sem reajuste';
+                            evento = 'Sem reajuste';
+                        }
+                    }
+                    
+                } else {
+                    // ========== 3º ANO EM DIANTE ==========
+                    // Base: Valor do ano anterior
+                    // + reajuste anual (se houver)
+                    // + reajuste de faixa etária (se houver mudança)
+                    
+                    const idadeAnterior = calcularIdade(dataNasc, ano - 1);
+                    const foiCriancaAnterior = idadeAnterior < 18;
+                    
+                    if (foiCriancaAnterior && !isCrianca) {
+                        // Transição Criança → Adulto
+                        transicao18 = true;
+                        
+                        const valorBaseAdulto = getValorBaseVumiPorIdade(idade, plano, franquia);
+                        const numCriancasAntes = contarCriancasNaApolice(ano - 1);
+                        const valorBaseCriancaAnterior = getValorBaseCrianca(numCriancasAntes || 1, plano, franquia);
+                        
+                        let pctReajusteMudanca = 0;
+                        if (valorBaseCriancaAnterior > 0) {
+                            pctReajusteMudanca = ((valorBaseAdulto - valorBaseCriancaAnterior) / valorBaseCriancaAnterior) * 100;
+                        }
+                        
+                        // Começa do valor anterior e aplica reajuste de mudança
+                        let novoValorAnual = (valorMensalAnterior * 12 / cotacao) * (1 + pctReajusteMudanca / 100);
+                        
+                        // Aplica reajuste anual se houver
+                        if (reajusteAnualApolice > 0) {
+                            novoValorAnual = novoValorAnual * (1 + reajusteAnualApolice / 100);
+                            reajusteAnual = reajusteAnualApolice;
+                        }
+                        
+                        valorMensal = (novoValorAnual / 12) * cotacao;
+                        reajusteFaixa = pctReajusteMudanca;
+                        evento = `🎂 18 anos (+${pctReajusteMudanca.toFixed(2)}%)`;
+                        if (reajusteAnual > 0) evento += ` + Anual +${reajusteAnual}%`;
+                        
+                    } else {
+                        // Verifica mudança de faixa
+                        const faixaAnterior = getFaixaEtaria(idadeAnterior, plano);
+                        const faixaAtual = getFaixaEtaria(idade, plano);
+                        
+                        let pctReajusteMudanca = 0;
+                        if (faixaAtual !== faixaAnterior && !isCrianca) {
+                            const valorBaseAnterior = getValorBaseVumiPorIdade(idadeAnterior, plano, franquia);
+                            if (valorBaseAnterior > 0) {
+                                pctReajusteMudanca = ((valorBaseAtual - valorBaseAnterior) / valorBaseAnterior) * 100;
                             }
                         }
-                    } else {
-                        // CRIANÇA → CRIANÇA (mesma faixa)
-                        valorMensal = valorAnterior;
                         
+                        // Começa do valor anterior
+                        let novoValorAnual = (valorMensalAnterior * 12 / cotacao);
+                        
+                        // Aplica reajuste de faixa se houver
+                        if (pctReajusteMudanca !== 0) {
+                            novoValorAnual = novoValorAnual * (1 + pctReajusteMudanca / 100);
+                            reajusteFaixa = pctReajusteMudanca;
+                        }
+                        
+                        // Aplica reajuste anual se houver
                         if (reajusteAnualApolice > 0) {
+                            novoValorAnual = novoValorAnual * (1 + reajusteAnualApolice / 100);
                             reajusteAnual = reajusteAnualApolice;
-                            valorMensal = valorAnterior * (1 + reajusteAnual / 100);
+                        }
+                        
+                        valorMensal = (novoValorAnual / 12) * cotacao;
+                        
+                        if (reajusteFaixa !== 0) {
+                            evento = `Idade ${idade} (${reajusteFaixa > 0 ? '+' : ''}${reajusteFaixa.toFixed(2)}%)`;
+                            if (reajusteAnual > 0) evento += ` + Anual +${reajusteAnual}%`;
+                        } else if (reajusteAnual > 0) {
                             evento = `Anual +${reajusteAnual}%`;
                         } else {
                             evento = 'Sem reajuste';
                         }
                     }
                 }
+                
+                valorMensalAnterior = valorMensal;
+                valorBaseAnterior = valorBaseAtual;
                 
                 dados.push({
                     ano,
@@ -1902,7 +1976,7 @@
                 }
             });
             
-            // CORREÇÃO: Gráfico 3 - Diferença Mensal (Economia/Prejuízo)
+            // Gráfico 3: Diferença Mensal
             const ctx3 = document.getElementById('graficoDiferenca').getContext('2d');
             if (graficoDiferenca) graficoDiferenca.destroy();
             
